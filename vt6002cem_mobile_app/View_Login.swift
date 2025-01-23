@@ -1,8 +1,11 @@
 import SwiftUI
 
 struct View_Login: View {
+    
+    @State private var isLoggedIn = false
+    
     var body: some View {
-        NavigationView { 
+        NavigationView {
             VStack {
                 Spacer()
                 
@@ -11,29 +14,31 @@ struct View_Login: View {
                     .resizable()
                     .frame(width: 100, height: 100)
                     .padding()
-
+                
                 Text("Lost & Found+")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.bottom, 30)
-
+                
                 // Email Field
                 TextField("Email Address", text: .constant(""))
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(8)
                     .padding(.horizontal)
-
+                
                 // Password Field
                 SecureField("Password", text: .constant(""))
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(8)
                     .padding(.horizontal)
-
+                
                 // Sign In Button
                 Button(action: {
                     // Add sign-in action here
+                    
+                    isLoggedIn = true
                 }) {
                     Text("SIGN IN")
                         .font(.headline)
@@ -45,23 +50,26 @@ struct View_Login: View {
                         .padding(.horizontal)
                 }
                 .padding(.top, 20)
-
+                .fullScreenCover(isPresented: $isLoggedIn) {
+                    TabView_Main() // The main TabView after login
+                }
+                
                 // Divider for Social Login
                 HStack {
                     Rectangle()
                         .frame(height: 1)
                         .foregroundColor(.gray)
-
+                    
                     Text("or")
                         .foregroundColor(.gray)
                         .padding(.horizontal, 5)
-
+                    
                     Rectangle()
                         .frame(height: 1)
                         .foregroundColor(.gray)
                 }
                 .padding(.vertical, 20)
-
+                
                 // Social Login Buttons
                 VStack(spacing: 10) {
                     Button(action: {
@@ -86,7 +94,7 @@ struct View_Login: View {
                                 .stroke(Color.gray, lineWidth: 1)
                         )
                     }
-
+                    
                     Button(action: {
                         // Google login action here
                     }) {
@@ -109,7 +117,7 @@ struct View_Login: View {
                                 .stroke(Color.gray, lineWidth: 1)
                         )
                     }
-
+                    
                     Button(action: {
                         // Facebook login action here
                     }) {
@@ -134,9 +142,9 @@ struct View_Login: View {
                     }
                 }
                 .padding(.horizontal)
-
+                
                 Spacer()
-
+                
                 // Sign Up Prompt
                 HStack {
                     Text("Don't have an account?")
@@ -158,3 +166,4 @@ struct View_Login_Previews: PreviewProvider {
         View_Login()
     }
 }
+
