@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct TabView_Main: View {
+    
+    
     var body: some View {
         TabView {
             // Report Page
@@ -35,9 +37,10 @@ struct TabView_Main: View {
     }
 }
 
+
 struct TabView_Main_Previews: PreviewProvider {
     static var previews: some View {
-        TabView_Main()
+        TabView_Main().environmentObject(ReportManager())
     }
 }
 

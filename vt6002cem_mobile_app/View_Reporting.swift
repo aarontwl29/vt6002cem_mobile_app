@@ -20,6 +20,7 @@ struct ReportFormView: View {
     @State private var selectedDate = Date() // For current date and time
     
     
+    @Binding var isPresented: Bool // Binding to control the sheet dismissal
     
     var body: some View {
         NavigationView {
@@ -337,8 +338,10 @@ struct ReportFormView: View {
 //                    audioFileURL: audioControl.getRecordingURL()
                 )
                 
-                View_Reporting_Next(report: report)
-                    .presentationDragIndicator(.visible) // Optional drag indicator
+                View_Reporting_Next(report: report, dismissAllSheets: {
+                    dismissAllSheets()
+                })
+                .presentationDragIndicator(.visible) // Optional drag indicator
             }
             
         }
@@ -350,6 +353,14 @@ struct ReportFormView: View {
         formatter.timeStyle = .short
         formatter.timeZone = .current // Use the user's current time zone
         return formatter.string(from: date)
+    }
+    
+    // A helper to fully dismiss *both* sheets
+    private func dismissAllSheets() {
+        // Close the "Next" sheet
+        showNextSheet = false
+        // Close this entire form sheet
+        isPresented = false
     }
     
     
@@ -373,10 +384,9 @@ struct ReportFormView: View {
 
 struct ReportFormView_Previews: PreviewProvider {
     static var previews: some View {
-        ReportFormView()
+        ReportFormView(isPresented: .constant(true)).environmentObject(ReportManager())
     }
 }
-
 
 
 

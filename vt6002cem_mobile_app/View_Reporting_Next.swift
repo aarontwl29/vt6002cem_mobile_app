@@ -2,6 +2,9 @@ import SwiftUI
 
 struct View_Reporting_Next: View {
     var report: Report
+    @EnvironmentObject var reportManager: ReportManager
+   
+    var dismissAllSheets: () -> Void
     
     @State private var description: String = ""
     
@@ -151,6 +154,7 @@ struct View_Reporting_Next: View {
             // 5. Submit Button
             Button(action: {
                 submitFeedback()
+                dismissAllSheets()
             }) {
                 Text("Submit")
                     .font(.headline)
@@ -168,11 +172,17 @@ struct View_Reporting_Next: View {
     }
     
     private func submitFeedback() {
+        
+        print("Report added successfully. Total reports count: \(reportManager.reports.count)")
+        
         var updatedReport = report
         updatedReport.description = description
         updatedReport.fullName = showFullName ? fullName : "N/A"
         updatedReport.phoneNumber = isContactEnabled ? phoneNumber : "N/A"
         updatedReport.audioFileURL = includeAudio && audioControl.isFileValid ? audioControl.getRecordingURL() : nil
+        
+        reportManager.reports.append(updatedReport)
+        print("Report added successfully. Total reports count: \(reportManager.reports.count)")
         
         print("Feedback submitted successfully:")
         print("Captured Images Count: \(updatedReport.capturedImages.count)")

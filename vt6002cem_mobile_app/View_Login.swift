@@ -1,8 +1,11 @@
 import SwiftUI
+import Foundation
 
 struct View_Login: View {
     
     @State private var isLoggedIn = false
+    
+    @StateObject private var reportManager = ReportManager()
     
     var body: some View {
         NavigationView {
@@ -51,7 +54,8 @@ struct View_Login: View {
                 }
                 .padding(.top, 20)
                 .fullScreenCover(isPresented: $isLoggedIn) {
-                    TabView_Main() // The main TabView after login
+                    TabView_Main()
+                        .environmentObject(reportManager)// The main TabView after login
                 }
                 
                 // Divider for Social Login
@@ -159,6 +163,10 @@ struct View_Login: View {
             }
         }
     }
+}
+
+class ReportManager: ObservableObject {
+    @Published var reports: [Report] = []
 }
 
 struct View_Login_Previews: PreviewProvider {
