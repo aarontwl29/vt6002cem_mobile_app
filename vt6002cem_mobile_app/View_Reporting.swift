@@ -1,6 +1,12 @@
 import SwiftUI
 
 struct ReportFormView: View {
+
+    @StateObject private var controller = Controller_Reporting()
+    @State private var showCamera = false
+    @State private var capturedImages: [UIImage] = [] 
+
+    
     @State private var selectedPhoto: UIImage? = nil
     @State private var species: String = "Select Item"
     @State private var latitude: String = "Latitude: N/A"
@@ -13,10 +19,37 @@ struct ReportFormView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
+                    
+                    // Display Captured Images
+                    if !capturedImages.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(capturedImages, id: \.self) { image in
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 100, height: 100)
+                                        .cornerRadius(8)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color.gray, lineWidth: 1)
+                                        )
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    } else {
+                        Text("No Images Added")
+                            .foregroundColor(.gray)
+                            .padding()
+                    }
+                    
+                    
+                    
                     // 1. Camera and Add Photos Buttons in the Same Row
                     HStack(spacing: 15) {
                         Button(action: {
-                            print("Camera tapped")
+                            showCamera = true
                         }) {
                             HStack {
                                 Image(systemName: "camera.fill")
@@ -30,6 +63,9 @@ struct ReportFormView: View {
                             .cornerRadius(8)
                         }
 
+                     
+                        
+                        
                         Button(action: {
                             print("Add Photos tapped")
                         }) {
@@ -170,6 +206,16 @@ struct ReportFormView: View {
                 .padding()
             }
             .navigationTitle("Report Case")
+            .sheet(isPresented: $showCamera) {
+                CameraCaptureView(isShown: $showCamera, image: Binding(
+                    get: { nil }, // This is temporary for binding
+                    set: { newImage in
+                        if let image = newImage {
+                            capturedImages.append(image) // Add new image to the array
+                        }
+                    }
+                ))
+            }
         }
     }
 
@@ -189,3 +235,7 @@ struct ReportFormView_Previews: PreviewProvider {
         ReportFormView()
     }
 }
+
+
+
+
