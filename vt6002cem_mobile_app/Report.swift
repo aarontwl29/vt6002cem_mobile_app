@@ -1,0 +1,23 @@
+import Foundation
+import UIKit
+
+struct Report {
+    var capturedImages: [UIImage] = []
+    var species: String = "Select Item"
+    var latitude: String = "Latitude: N/A"
+    var longitude: String = "Longitude: N/A"
+    var selectedArea: String = "Select Area"
+    var selectedDistrict: String = "Select District"
+    var selectedDate: Date = Date()
+    
+    var description: String = ""
+    var fullName: String = ""
+    var phoneNumber: String = ""
+    var audioFileURL: URL? = nil
+
+    
+    
+    
+}
+
+

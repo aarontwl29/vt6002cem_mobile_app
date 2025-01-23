@@ -14,8 +14,7 @@ struct ReportFormView: View {
     
     //others
     @State private var species: String = "Select Item"
-    @State private var latitude: String = "Latitude: N/A"
-    @State private var longitude: String = "Longitude: N/A"
+
     @State private var selectedArea: String = "Select Area"
     @State private var selectedDistrict: String = "Select District"
     @State private var selectedDate = Date() // For current date and time
@@ -163,6 +162,7 @@ struct ReportFormView: View {
                             locationManager.requestLocation()
                             print("Get Location tapped")
                             
+
                             selectedArea = "New Territories"
                             districtOptions = areaDistrictMapping[selectedArea] ?? [] // Update district options
                             selectedDistrict = "Sha Tin"
@@ -243,7 +243,7 @@ struct ReportFormView: View {
                         }
                     }
 
-                    
+                     
                     // 5. Date and Time Input + Get Current Date Button
                     VStack(alignment: .leading, spacing: 10) {
   
@@ -254,7 +254,13 @@ struct ReportFormView: View {
                                 Text("Date:")
                                     .font(.subheadline)
                                     .foregroundColor(.black)
-                                DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                                DatePicker("", selection: Binding(
+                                    get: { selectedDate },
+                                    set: { newValue in
+                                        selectedDate = newValue
+                                        print("Date updated: \(formatDate(selectedDate))") // Log local time
+                                    }
+                                ), displayedComponents: .date)
                                     .labelsHidden()
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
@@ -270,7 +276,13 @@ struct ReportFormView: View {
                                 Text("Time:")
                                     .font(.subheadline)
                                     .foregroundColor(.black)
-                                DatePicker("", selection: $selectedDate, displayedComponents: .hourAndMinute)
+                                DatePicker("", selection: Binding(
+                                    get: { selectedDate },
+                                    set: { newValue in
+                                        selectedDate = newValue
+                                        print("Time updated: \(formatDate(selectedDate))") // Log local time
+                                    }
+                                ), displayedComponents: .hourAndMinute)
                                     .labelsHidden()
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
@@ -311,14 +323,34 @@ struct ReportFormView: View {
                 ))
             }
             .sheet(isPresented: $showNextSheet) {
-                View_Reporting_Next()
+                let report = Report(
+                    capturedImages: capturedImages,
+                    species: species,
+                    latitude: locationManager.latitude,
+                    longitude: locationManager.longitude,
+                    selectedArea: selectedArea,
+                    selectedDistrict: selectedDistrict,
+                    selectedDate: selectedDate
+//                    description: description,
+//                    fullName: fullName,
+//                    phoneNumber: phoneNumber,
+//                    audioFileURL: audioControl.getRecordingURL()
+                )
+                
+                View_Reporting_Next(report: report)
                     .presentationDragIndicator(.visible) // Optional drag indicator
             }
             
         }
     }
     
-    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        formatter.timeZone = .current // Use the user's current time zone
+        return formatter.string(from: date)
+    }
     
     
     // Options for Dropdowns

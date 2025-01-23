@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct View_Reporting_Next: View {
+    var report: Report
+    
     @State private var description: String = ""
     
     @State private var isContactEnabled: Bool = false
@@ -166,21 +168,33 @@ struct View_Reporting_Next: View {
     }
     
     private func submitFeedback() {
-        print("Feedback submitted:")
-        print("Description: \(description)")
+        var updatedReport = report
+        updatedReport.description = description
+        updatedReport.fullName = showFullName ? fullName : "N/A"
+        updatedReport.phoneNumber = isContactEnabled ? phoneNumber : "N/A"
+        updatedReport.audioFileURL = includeAudio && audioControl.isFileValid ? audioControl.getRecordingURL() : nil
         
-        if includeAudio, audioControl.isFileValid {
-            print("User has chosen to include audio file: \(audioControl.getRecordingURL()?.absoluteString ?? "")")
+        print("Feedback submitted successfully:")
+        print("Captured Images Count: \(updatedReport.capturedImages.count)")
+        print("Species: \(updatedReport.species)")
+        print("Latitude: \(updatedReport.latitude)")
+        print("Longitude: \(updatedReport.longitude)")
+        print("Selected Area: \(updatedReport.selectedArea)")
+        print("Selected District: \(updatedReport.selectedDistrict)")
+        print("Selected Date: \(updatedReport.selectedDate)")
+        print("Description: \(updatedReport.description)")
+        print("Full Name: \(updatedReport.fullName)")
+        print("Phone Number: \(updatedReport.phoneNumber)")
+        
+        
+        if let audioFileURL = updatedReport.audioFileURL {
+            print("Audio File: \(audioFileURL.absoluteString)")
         } else {
-            print("No audio included.")
+            print("No audio file attached.")
         }
     }
 }
 
 
 
-struct View_Reporting_Next_Previews: PreviewProvider {
-    static var previews: some View {
-        View_Reporting_Next()
-    }
-}
+
