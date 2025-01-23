@@ -12,7 +12,7 @@ struct View_Login: View {
  
                 .padding()
 
-            Text("Smart Recycle")
+            Text("Lost & Found+")
                 .font(.largeTitle)
                 .fontWeight(.bold)
                 .padding(.bottom, 30)
