@@ -3,19 +3,11 @@ import SwiftUI
 import UIKit
 
 class Controller_Reporting: ObservableObject {
-    
-    func getLocation(completion: @escaping (String, String) -> Void) {
-        // Simulate fetching location
-        completion("Latitude: 22.3193", "Longitude: 114.1694")
-    }
-    
+
     func getCurrentDateTime(completion: @escaping (Date) -> Void) {
         completion(Date())
     }
 }
-
-
-
 
 struct CameraCaptureView: UIViewControllerRepresentable {
     @Binding var isShown: Bool
@@ -55,5 +47,8 @@ struct CameraCaptureView: UIViewControllerRepresentable {
         }
     }
 }
+
+
+
 
 

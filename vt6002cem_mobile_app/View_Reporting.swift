@@ -8,6 +8,8 @@ struct ReportFormView: View {
     @State private var capturedImages: [UIImage] = []
     @State private var selectedPhotos: [PhotosPickerItem] = []
     
+    @StateObject private var locationManager = LocationManager()
+    
     //others
     @State private var species: String = "Select Item"
     @State private var latitude: String = "Latitude: N/A"
@@ -15,6 +17,8 @@ struct ReportFormView: View {
     @State private var selectedArea: String = "Select Area"
     @State private var selectedDistrict: String = "Select District"
     @State private var selectedDate = Date() // For current date and time
+    
+    
     
     var body: some View {
         NavigationView {
@@ -100,7 +104,6 @@ struct ReportFormView: View {
                     }
                     // End of camera and photos
                     
-                    
                     // 2. Species Dropdown
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Item Type")
@@ -126,42 +129,73 @@ struct ReportFormView: View {
                             .cornerRadius(8)
                         }
                     }
-                    
+          
                     // 3. Location Result + Get Location Button in the Same Row
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(latitude)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            Text(longitude)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
+                    HStack(spacing: 15) {
+                        // Longitude and Latitude Display
+                        VStack(alignment: .leading, spacing: 10) {
+                            // Latitude
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(locationManager.latitude)
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(8)
+                            
+                            // Longitude
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(locationManager.longitude)
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(8)
                         }
-                        Spacer()
+                        .frame(maxWidth: .infinity)
                         
+                        // Get Current Location Button
                         Button(action: {
-                            latitude = "Latitude: 22.3193"
-                            longitude = "Longitude: 114.1694"
+                            locationManager.requestLocation()
                             print("Get Location tapped")
+                            
+                            selectedArea = "New Territories"
+                            districtOptions = areaDistrictMapping[selectedArea] ?? [] // Update district options
+                            selectedDistrict = "Sha Tin"
                         }) {
-                            Text("Get Location")
-                                .font(.headline)
-                                .padding()
-                                .background(Color.orange.opacity(0.8))
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
+                            HStack {
+                                Image(systemName: "location.circle.fill") // Location icon
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 20, height: 20)
+                                Text("Current\nLocation")
+                                    .font(.headline)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding()
+                            .frame(width: 130, height: 80) // Larger button size
+                            .background(Color.orange.opacity(0.8))
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
                         }
                     }
+                    .padding(.horizontal)
+                    
                     
                     // 4. Area and District Dropdown in the Same Row
-                    HStack(spacing: 15) {
+                    HStack(spacing: 5) {
+                        // Area Dropdown
                         VStack(alignment: .leading, spacing: 5) {
                             Text("Area")
                                 .font(.headline)
                             Menu {
-                                ForEach(areaOptions, id: \.self) { area in
+                                ForEach(areaDistrictMapping.keys.sorted(), id: \.self) { area in
                                     Button(action: {
                                         selectedArea = area
+                                        districtOptions = areaDistrictMapping[area] ?? [] // Update districts
+                                        selectedDistrict = "Select District" // Reset district selection
                                     }) {
                                         Text(area)
                                     }
@@ -180,6 +214,7 @@ struct ReportFormView: View {
                             }
                         }
                         
+                        // District Dropdown
                         VStack(alignment: .leading, spacing: 5) {
                             Text("District")
                                 .font(.headline)
@@ -205,6 +240,7 @@ struct ReportFormView: View {
                             }
                         }
                     }
+
                     
                     // 5. Date and Time Input + Get Current Date Button
                     VStack(alignment: .leading, spacing: 10) {
@@ -235,6 +271,7 @@ struct ReportFormView: View {
                     }
                 ))
             }
+            
         }
     }
     
@@ -248,8 +285,13 @@ struct ReportFormView: View {
         "Headphones or earbuds", "Bags", "Jewelry", "Eyewear"
     ]
     
-    private let areaOptions = ["Area 1", "Area 2", "Area 3", "Area 4"]
-    private let districtOptions = ["District A", "District B", "District C", "District D"]
+    
+    private let areaDistrictMapping: [String: [String]] = [
+        "Hong Kong": ["Central and Western", "Wan Chai", "Eastern", "Southern"],
+        "Kowloon": ["Yau Tsim Mong", "Sham Shui Po", "Kowloon City", "Wong Tai Sin", "Kwun Tong"],
+        "New Territories": ["Kwai Tsing", "Tsuen Wan", "Tuen Mun", "Yuen Long", "North", "Tai Po", "Sha Tin", "Sai Kung", "Islands"]
+    ]
+    @State private var districtOptions: [String] = []  // Dynamic district options based on selected area
 }
 
 
