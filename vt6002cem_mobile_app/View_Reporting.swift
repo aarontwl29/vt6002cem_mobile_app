@@ -1,20 +1,21 @@
 import SwiftUI
+import PhotosUI
 
 struct ReportFormView: View {
-
+    
     @StateObject private var controller = Controller_Reporting()
     @State private var showCamera = false
-    @State private var capturedImages: [UIImage] = [] 
-
+    @State private var capturedImages: [UIImage] = []
+    @State private var selectedPhotos: [PhotosPickerItem] = []
     
-    @State private var selectedPhoto: UIImage? = nil
+    //others
     @State private var species: String = "Select Item"
     @State private var latitude: String = "Latitude: N/A"
     @State private var longitude: String = "Longitude: N/A"
     @State private var selectedArea: String = "Select Area"
     @State private var selectedDistrict: String = "Select District"
     @State private var selectedDate = Date() // For current date and time
-
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -45,16 +46,16 @@ struct ReportFormView: View {
                     }
                     
                     
-                    
-                    // 1. Camera and Add Photos Buttons in the Same Row
+                    // Camera and Add Photos Buttons in the Same Row
                     HStack(spacing: 15) {
+                        
                         Button(action: {
                             showCamera = true
                         }) {
                             HStack {
                                 Image(systemName: "camera.fill")
                                     .font(.headline)
-                                Text("Camera")
+                                Text("Take Photo")
                                     .font(.headline)
                             }
                             .padding()
@@ -62,17 +63,18 @@ struct ReportFormView: View {
                             .foregroundColor(.white)
                             .cornerRadius(8)
                         }
-
-                     
                         
-                        
-                        Button(action: {
-                            print("Add Photos tapped")
-                        }) {
+                        // Photos Picker (multiple selection)
+                        PhotosPicker(
+                            selection: $selectedPhotos,
+                            maxSelectionCount: 10,          // <-- Set your max selection count
+                            matching: .images,
+                            photoLibrary: .shared()
+                        ) {
                             HStack {
                                 Image(systemName: "photo.fill")
                                     .font(.headline)
-                                Text("Add Photos")
+                                Text("Select Photos")
                                     .font(.headline)
                             }
                             .padding()
@@ -80,8 +82,25 @@ struct ReportFormView: View {
                             .foregroundColor(.white)
                             .cornerRadius(8)
                         }
+                        // As soon as new items are selected, load them into UIImages
+                        .onChange(of: selectedPhotos) { newItems in
+                            Task {
+                                for item in newItems {
+                                    if let data = try? await item.loadTransferable(type: Data.self),
+                                       let uiImage = UIImage(data: data) {
+                                        // Append each new image to your existing list
+                                        capturedImages.append(uiImage)
+                                    }
+                                }
+                                // Clear the selection if you like, or leave them in `selectedPhotos`
+                                selectedPhotos.removeAll()
+                            }
+                        }
+                        
                     }
-
+                    // End of camera and photos
+                    
+                    
                     // 2. Species Dropdown
                     VStack(alignment: .leading, spacing: 5) {
                         Text("Item Type")
@@ -107,7 +126,7 @@ struct ReportFormView: View {
                             .cornerRadius(8)
                         }
                     }
-
+                    
                     // 3. Location Result + Get Location Button in the Same Row
                     HStack {
                         VStack(alignment: .leading) {
@@ -119,7 +138,7 @@ struct ReportFormView: View {
                                 .foregroundColor(.gray)
                         }
                         Spacer()
-
+                        
                         Button(action: {
                             latitude = "Latitude: 22.3193"
                             longitude = "Longitude: 114.1694"
@@ -133,7 +152,7 @@ struct ReportFormView: View {
                                 .cornerRadius(8)
                         }
                     }
-
+                    
                     // 4. Area and District Dropdown in the Same Row
                     HStack(spacing: 15) {
                         VStack(alignment: .leading, spacing: 5) {
@@ -160,7 +179,7 @@ struct ReportFormView: View {
                                 .cornerRadius(8)
                             }
                         }
-
+                        
                         VStack(alignment: .leading, spacing: 5) {
                             Text("District")
                                 .font(.headline)
@@ -186,19 +205,19 @@ struct ReportFormView: View {
                             }
                         }
                     }
-
+                    
                     // 5. Date and Time Input + Get Current Date Button
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Time of Incident")
                             .font(.headline)
-
+                        
                         HStack(spacing: 15) {
                             DatePicker("Date", selection: $selectedDate, displayedComponents: .date)
                                 .labelsHidden()
-
+                            
                             DatePicker("Time", selection: $selectedDate, displayedComponents: .hourAndMinute)
                                 .labelsHidden()
-
+                            
                             
                         }
                     }
@@ -218,17 +237,22 @@ struct ReportFormView: View {
             }
         }
     }
-
+    
+    
+    
+    
     // Options for Dropdowns
     private let speciesOptions = [
         "Wallets", "Keys", "Mobile phones", "Laptops",
         "Identification documents", "Credit cards",
         "Headphones or earbuds", "Bags", "Jewelry", "Eyewear"
     ]
-
+    
     private let areaOptions = ["Area 1", "Area 2", "Area 3", "Area 4"]
     private let districtOptions = ["District A", "District B", "District C", "District D"]
 }
+
+
 
 struct ReportFormView_Previews: PreviewProvider {
     static var previews: some View {

@@ -4,10 +4,6 @@ import UIKit
 
 class Controller_Reporting: ObservableObject {
     
-    func addPhoto() {
-        print("Add Photo functionality goes here.")
-    }
-    
     func getLocation(completion: @escaping (String, String) -> Void) {
         // Simulate fetching location
         completion("Latitude: 22.3193", "Longitude: 114.1694")
