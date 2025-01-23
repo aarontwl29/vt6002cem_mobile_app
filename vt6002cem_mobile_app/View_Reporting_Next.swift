@@ -5,17 +5,23 @@ struct View_Reporting_Next: View {
     
     @State private var isContactEnabled: Bool = false
     @State private var showFullName: Bool = false
+    
     @State private var fullName: String = "Aaron Tso"
     @State private var phoneNumber: String = ""
     
-    @State private var isRecording: Bool = false
+    // AudioControl instance
+    @StateObject private var audioControl = AudioControl()
+    
+    @State private var includeAudio: Bool = false
     
     var body: some View {
         VStack(spacing: 20) {
+            
             // 1. Description Box
             VStack(alignment: .leading, spacing: 5) {
                 Text("Description")
                     .font(.headline)
+                
                 TextEditor(text: $description)
                     .frame(height: 100)
                     .padding(8)
@@ -27,36 +33,77 @@ struct View_Reporting_Next: View {
                     )
             }
             
-            // 2. Comment in Sound
+            // 2. Record Audio Comment
             VStack(alignment: .leading, spacing: 10) {
                 Text("Record a Comment")
                     .font(.headline)
                 
-                Button(action: {
-                    isRecording.toggle()
-                    if isRecording {
-                        startRecording()
-                    } else {
-                        stopRecording()
+                // Row 1: Record/Stop Button
+                HStack(spacing: 15) {
+                    Button(action: {
+                        if audioControl.isRecording {
+                            audioControl.stopRecording()
+                        } else {
+                            audioControl.startRecording()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: audioControl.isRecording ? "stop.circle.fill" : "mic.circle.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 24, height: 24)
+                            
+                            Text(audioControl.isRecording ? "Stop Recording" : "Start Recording")
+                                .font(.headline)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(audioControl.isRecording ? Color.red.opacity(0.8) : Color.blue.opacity(0.8))
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
                     }
-                }) {
-                    HStack {
-                        Image(systemName: isRecording ? "stop.circle.fill" : "mic.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                        Text(isRecording ? "Stop Recording" : "Start Recording")
-                            .font(.headline)
+                }
+                
+                // Row 2: Play/Stop + Include Audio Toggle (only if there's a valid file)
+                if audioControl.isFileValid {
+                    HStack(spacing: 15) {
+                        // Play/Stop Button
+                        Button(action: {
+                            if audioControl.isPlaying {
+                                audioControl.stopPlaying()
+                            } else {
+                                audioControl.startPlaying()
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: audioControl.isPlaying ? "stop.circle.fill" : "play.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 24, height: 24)
+                                
+                                Text(audioControl.isPlaying ? "Stop Playing" : "Play Recording")
+                                    .font(.headline)
+                            }
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(audioControl.isPlaying ? Color.orange.opacity(0.8) : Color.green.opacity(0.8))
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                        }
+                        
+                        // Toggle for whether user wants to provide the audio
+                        Toggle(isOn: $includeAudio) {
+                            Text("Approve Audio Attachment")
+                                .font(.headline)
+                                .bold()
+                        }
+                        .toggleStyle(SwitchToggleStyle())
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(isRecording ? Color.red.opacity(0.8) : Color.blue.opacity(0.8))
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
                 }
             }
             
-            // 2. Contact Information Toggle
+            // 3. Contact Information Toggle
             VStack(alignment: .leading, spacing: 10) {
                 Toggle(isOn: $isContactEnabled) {
                     Text("Leave Contact Information")
@@ -67,7 +114,7 @@ struct View_Reporting_Next: View {
                 .cornerRadius(8)
             }
             
-            // 3. Full Name and Phone Number
+            // 4. Full Name and Phone Number
             if isContactEnabled {
                 VStack(alignment: .leading, spacing: 15) {
                     // Full Name with Checkbox
@@ -107,7 +154,7 @@ struct View_Reporting_Next: View {
                     .font(.headline)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.green.opacity(0.8))
+                    .background(Color.blue.opacity(0.8))
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
@@ -118,23 +165,15 @@ struct View_Reporting_Next: View {
         .navigationTitle("Feedback Form")
     }
     
-    // Dummy functions for recording
-    private func startRecording() {
-        print("Recording started...")
-        // Add your actual recording logic here
-    }
-    
-    private func stopRecording() {
-        print("Recording stopped.")
-        // Add your actual logic to stop recording and save the audio file
-    }
-    
-    // Submit feedback function
     private func submitFeedback() {
         print("Feedback submitted:")
         print("Description: \(description)")
-        print("Full Name: \(showFullName ? fullName : "N/A")")
-        print("Phone Number: \(isContactEnabled ? phoneNumber : "N/A")")
+        
+        if includeAudio, audioControl.isFileValid {
+            print("User has chosen to include audio file: \(audioControl.getRecordingURL()?.absoluteString ?? "")")
+        } else {
+            print("No audio included.")
+        }
     }
 }
 
