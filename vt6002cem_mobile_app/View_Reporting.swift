@@ -10,6 +10,8 @@ struct ReportFormView: View {
     
     @StateObject private var locationManager = LocationManager()
     
+    @State private var showNextSheet = false
+    
     //others
     @State private var species: String = "Select Item"
     @State private var latitude: String = "Latitude: N/A"
@@ -244,18 +246,55 @@ struct ReportFormView: View {
                     
                     // 5. Date and Time Input + Get Current Date Button
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Time of Incident")
-                            .font(.headline)
+  
                         
-                        HStack(spacing: 15) {
-                            DatePicker("Date", selection: $selectedDate, displayedComponents: .date)
-                                .labelsHidden()
+                        HStack(spacing: 0) {
+                            // Date Display
+                            HStack {
+                                Text("Date:")
+                                    .font(.subheadline)
+                                    .foregroundColor(.black)
+                                DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                                    .labelsHidden()
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.gray.opacity(0.1))
+                                            .frame(height: 36)
+                                    )
+                            }
                             
-                            DatePicker("Time", selection: $selectedDate, displayedComponents: .hourAndMinute)
-                                .labelsHidden()
+                            Spacer()
                             
-                            
+                            // Time Display
+                            HStack {
+                                Text("Time:")
+                                    .font(.subheadline)
+                                    .foregroundColor(.black)
+                                DatePicker("", selection: $selectedDate, displayedComponents: .hourAndMinute)
+                                    .labelsHidden()
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.gray.opacity(0.1))
+                                            .frame(height: 36)
+                                    )
+                            }
                         }
+                        .padding(.horizontal)
+                    }
+
+                    
+                    // Next Button
+                    Button(action: {
+                        showNextSheet = true // Trigger the sheet
+                    }) {
+                        Text("Next")
+                            .font(.headline)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue.opacity(0.8))
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .padding(.horizontal)
                     }
                 }
                 .padding()
@@ -270,6 +309,10 @@ struct ReportFormView: View {
                         }
                     }
                 ))
+            }
+            .sheet(isPresented: $showNextSheet) {
+                View_Reporting_Next()
+                    .presentationDragIndicator(.visible) // Optional drag indicator
             }
             
         }
