@@ -95,3 +95,90 @@ struct ReportCard: View {
         return formatter.string(from: date)
     }
 }
+
+
+
+
+
+struct ResultCard: View {
+    @Binding var report: Report
+    let onTapDetails: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 10) { // Center-align all elements vertically
+                // Checkbox for "isFavour"
+                Button(action: {
+                    report.isFavour.toggle() // Toggle isFavour
+                }) {
+                    Image(systemName: report.isFavour ? "checkmark.circle.fill" : "circle")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundColor(report.isFavour ? .blue : .gray)
+                }
+                .frame(maxHeight: .infinity, alignment: .center) // Center-align checkbox
+
+             
+                if let firstImage = report.capturedImages.first {
+                    Image(uiImage: firstImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 80, height: 80)
+                        .clipped()
+                        .cornerRadius(8)
+                } else {
+                    Image(systemName: "photo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.gray)
+                        .cornerRadius(8)
+                }
+                
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(report.species)
+                        .font(.subheadline)
+                        .bold()
+                    Text("District: \(report.selectedDistrict)")
+                        .font(.subheadline)
+                        .bold()
+                    Text("Area: \(report.selectedArea)")
+                        .font(.subheadline)
+                        .bold()
+
+                    HStack {
+                        Text(formatDate(report.selectedDate))
+                            .font(.subheadline)
+                            .bold()
+
+                        Spacer()
+
+                        Button(action: onTapDetails) {
+                            Text("View Details")
+                                .font(.footnote)
+                                .foregroundColor(.blue)
+                                .underline()
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .padding()
+        .background(Color(.systemGray6))
+        .cornerRadius(10)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
+    }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+}
+
+
+
