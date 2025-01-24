@@ -6,7 +6,6 @@ struct FindingLostView: View {
     @State private var capturedImage: UIImage?
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var species: String = "Select Item"
-    
     @State private var selectedArea: String = "Select Area"
     @State private var selectedDistrict: String = "Select District"
     @State private var districtOptions: [String] = []
@@ -15,15 +14,19 @@ struct FindingLostView: View {
     @State private var startTime = Date()
     @State private var endTime = Date()
     
-    
+    // Loading + Sheets
     @State private var isLoading: Bool = false
+    
+    // Two booleans for two different sheets
     @State private var showResult: Bool = false
+    @State private var showNoResults: Bool = false
     
     var body: some View {
         ZStack {
             NavigationView {
                 ScrollView {
                     VStack(spacing: 20) {
+                        
                         // Title
                         Text("Finding Lost")
                             .font(.largeTitle)
@@ -74,7 +77,7 @@ struct FindingLostView: View {
                             }
                         }
                         
-                        // Item Type (species) Dropdown
+                        // Item Type Dropdown
                         VStack(alignment: .leading) {
                             Text("Item Type")
                                 .font(.headline)
@@ -108,7 +111,6 @@ struct FindingLostView: View {
                                 Menu {
                                     ForEach(areaDistrictMapping.keys.sorted(), id: \.self) { area in
                                         Button(area) {
-                                            print("User picked area: \(area)")
                                             selectedArea = area
                                             districtOptions = areaDistrictMapping[area] ?? []
                                             selectedDistrict = "Select District"
@@ -116,11 +118,9 @@ struct FindingLostView: View {
                                     }
                                 } label: {
                                     HStack {
-                                        Text(selectedArea)
-                                            .foregroundColor(.primary)
+                                        Text(selectedArea).foregroundColor(.primary)
                                         Spacer()
-                                        Image(systemName: "chevron.down")
-                                            .foregroundColor(.gray)
+                                        Image(systemName: "chevron.down").foregroundColor(.gray)
                                     }
                                     .padding()
                                     .background(Color.gray.opacity(0.1))
@@ -138,11 +138,9 @@ struct FindingLostView: View {
                                     }
                                 } label: {
                                     HStack {
-                                        Text(selectedDistrict)
-                                            .foregroundColor(.primary)
+                                        Text(selectedDistrict).foregroundColor(.primary)
                                         Spacer()
-                                        Image(systemName: "chevron.down")
-                                            .foregroundColor(.gray)
+                                        Image(systemName: "chevron.down").foregroundColor(.gray)
                                     }
                                     .padding()
                                     .background(Color.gray.opacity(0.1))
@@ -157,6 +155,7 @@ struct FindingLostView: View {
                             Text("Date")
                                 .font(.headline)
                                 .padding(.horizontal)
+                            
                             DatePicker("", selection: $selectedDate, displayedComponents: .date)
                                 .labelsHidden()
                                 .datePickerStyle(.graphical)
@@ -167,8 +166,7 @@ struct FindingLostView: View {
                         // Time Range
                         HStack(spacing: 10) {
                             VStack(alignment: .leading) {
-                                Text("Start Time")
-                                    .font(.headline)
+                                Text("Start Time").font(.headline)
                                 DatePicker("", selection: $startTime, displayedComponents: .hourAndMinute)
                                     .labelsHidden()
                                     .padding()
@@ -176,8 +174,7 @@ struct FindingLostView: View {
                                     .cornerRadius(10)
                             }
                             VStack(alignment: .leading) {
-                                Text("End Time")
-                                    .font(.headline)
+                                Text("End Time").font(.headline)
                                 DatePicker("", selection: $endTime, displayedComponents: .hourAndMinute)
                                     .labelsHidden()
                                     .padding()
@@ -210,12 +207,11 @@ struct FindingLostView: View {
                 }
             }
             
-            // Loading Overlay
+
             if isLoading {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
+                Color.black.opacity(0.3).ignoresSafeArea()
                 VStack(spacing: 20) {
-                    ProgressView("Searching...")
+                    ProgressView("Matching...")
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .foregroundColor(.white)
                         .padding()
@@ -224,19 +220,21 @@ struct FindingLostView: View {
                 }
             }
         }
-        .sheet(isPresented: $showResult, onDismiss: {
-            // Optionally do something after dismiss
-        }) {
-            FindingLostResultView(
-                onClose: {
-                    // Called when user taps "Try Again" or "Save"
-                    resetForm()
-                    showResult = false
-                }
-            )
+        .sheet(isPresented: $showNoResults) {
+            NoResultsView(onTryAgain: {
+                resetForm()
+                showNoResults = false
+            })
+            .presentationDetents([.fraction(0.5)])
+        }
+        .sheet(isPresented: $showResult) {
+            FindingLostResultView(onClose: {
+                resetForm()
+                showResult = false
+            })
+            .presentationDetents([.large]) // or .fraction(0.9) or .height(500)
         }
     }
-    
     
     private func startSearch() {
         print("Search pressed with details:")
@@ -245,11 +243,16 @@ struct FindingLostView: View {
         print("Time range: \(startTime) to \(endTime)")
         
         isLoading = true
-  
+        
         Task {
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            try? await Task.sleep(nanoseconds: 1_000_000_000) 
             isLoading = false
-            showResult = true
+            
+            if capturedImage == nil {
+                showNoResults = true
+            } else {
+                showResult = true
+            }
         }
     }
     
@@ -265,7 +268,6 @@ struct FindingLostView: View {
         endTime = Date()
     }
     
-    // Dropdown options
     private let speciesOptions = [
         "Wallets", "Keys", "Mobile phones", "Laptops",
         "Identification documents", "Credit cards",
@@ -275,10 +277,10 @@ struct FindingLostView: View {
     private let areaDistrictMapping: [String: [String]] = [
         "Hong Kong": ["Central and Western", "Wan Chai", "Eastern", "Southern"],
         "Kowloon": ["Yau Tsim Mong", "Sham Shui Po", "Kowloon City", "Wong Tai Sin", "Kwun Tong"],
-        "New Territories": ["Kwai Tsing", "Tsuen Wan", "Tuen Mun", "Yuen Long", "North", "Tai Po", "Sha Tin", "Sai Kung", "Islands"]
+        "New Territories": ["Kwai Tsing", "Tsuen Wan", "Tuen Mun", "Yuen Long", "North", "Tai Po",
+                            "Sha Tin", "Sai Kung", "Islands"]
     ]
 }
-
 
 struct FindingLostView_Previews: PreviewProvider {
     static var previews: some View {

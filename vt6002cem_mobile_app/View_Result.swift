@@ -1,11 +1,10 @@
 import SwiftUI
 
 struct FindingLostResultView: View {
-    
-    // HIGHLIGHT: A closure we call to dismiss & reset
+    // Called when user taps "Try Again" or "Save"
     var onClose: () -> Void
     
-    // Example repeating results (dummy data)
+    // Example results
     let dummyResults = [
         "Found item near District A",
         "Found item near District B",
@@ -23,7 +22,7 @@ struct FindingLostResultView: View {
                     VStack(spacing: 16) {
                         ForEach(dummyResults, id: \.self) { result in
                             HStack {
-                                Image(systemName: "magnifyingglass")
+                                Image(systemName: "doc.text.magnifyingglass")
                                     .foregroundColor(.blue)
                                 Text(result)
                                     .font(.headline)
@@ -38,22 +37,10 @@ struct FindingLostResultView: View {
                 
                 Spacer()
                 
+                // Buttons row
                 HStack {
-                    Button(action: {
-                        // "Try Again" => reset form & close sheet
-                        onClose()
-                    }) {
-                        Text("Try Again")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.orange)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
                     
                     Button(action: {
-                        // "Save" => maybe save to server, then close
                         onClose()
                     }) {
                         Text("Save")
@@ -70,14 +57,12 @@ struct FindingLostResultView: View {
                 Spacer()
             }
             .padding()
-            // Title at top
             .navigationTitle("Results")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
 
-// Preview
 struct FindingLostResultView_Previews: PreviewProvider {
     static var previews: some View {
         FindingLostResultView(onClose: {})
