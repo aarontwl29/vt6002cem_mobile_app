@@ -13,7 +13,7 @@ struct TabView_Main: View {
                 }
             
             // Finding Lost Page
-            ReportView()
+            FindingLostView()
                 .tabItem {
                     Image(systemName: "magnifyingglass.circle.fill")
                     Text("Finding Lost")
