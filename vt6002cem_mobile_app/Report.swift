@@ -2,6 +2,8 @@ import Foundation
 import UIKit
 
 struct Report {
+    let id = UUID()
+    
     var capturedImages: [UIImage] = []
     var species: String = "Select Item"
     var latitude: String = "Latitude: N/A"
@@ -15,9 +17,7 @@ struct Report {
     var phoneNumber: String = ""
     var audioFileURL: URL? = nil
 
-    
-    
-    
+    var isFinished: Bool = false
+    var isFavour: Bool = false
 }
-
 

@@ -204,7 +204,3 @@ struct View_Reporting_Next: View {
         }
     }
 }
-
-
-
-
