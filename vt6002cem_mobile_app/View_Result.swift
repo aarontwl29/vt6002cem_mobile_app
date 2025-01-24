@@ -1,70 +1,77 @@
 import SwiftUI
 
 struct FindingLostResultView: View {
-    // Called when user taps "Try Again" or "Save"
+    @EnvironmentObject var reportManager: ReportManager
     var onClose: () -> Void
     
-    // Example results
-    let dummyResults = [
-        "Found item near District A",
-        "Found item near District B",
-        "Found item near District C"
-    ]
-    
+    @State private var selectedReport: Report?
+    @State private var showDetailsSheet: Bool = false
+
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
+                
+                Spacer()
+                
                 Text("Search Results")
-                    .font(.largeTitle)
+                    .font(.title)
                     .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
                 
                 ScrollView {
                     VStack(spacing: 16) {
-                        ForEach(dummyResults, id: \.self) { result in
-                            HStack {
-                                Image(systemName: "doc.text.magnifyingglass")
-                                    .foregroundColor(.blue)
-                                Text(result)
-                                    .font(.headline)
-                            }
-                            .padding()
-                            .background(Color.gray.opacity(0.1))
-                            .cornerRadius(8)
+                        ForEach(reportManager.reports.indices, id: \.self) { index in
+                            ResultCard(
+                                report: $reportManager.reports[index],
+                                onTapDetails: {
+                                    selectedReport = reportManager.reports[index]
+                                    showDetailsSheet = true
+                                }
+                            )
                         }
                     }
                     .padding(.horizontal)
                 }
-                
+
                 Spacer()
-                
-                // Buttons row
-                HStack {
-                    
-                    Button(action: {
-                        onClose()
-                    }) {
-                        Text("Save")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
+
+                // Save Button
+                Button(action: {
+                    onClose()
+                }) {
+                    Text("Save")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                 }
                 .padding(.horizontal)
                 
                 Spacer()
+                
             }
             .padding()
-            .navigationTitle("Results")
+//            .navigationTitle("Results")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showDetailsSheet) {
+                if let selectedReport = selectedReport {
+                    ReportDetailsView(report: selectedReport)
+                        .presentationDetents([.fraction(0.8)])// Pass the selected report to details view
+                }
+            }
+            
         }
     }
 }
 
+
+
+
 struct FindingLostResultView_Previews: PreviewProvider {
     static var previews: some View {
         FindingLostResultView(onClose: {})
+            .environmentObject(ReportManager())
     }
 }
