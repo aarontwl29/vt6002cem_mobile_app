@@ -177,7 +177,7 @@ struct View_Reporting_Next: View {
         
         var updatedReport = report
         updatedReport.description = description
-        updatedReport.fullName = showFullName ? fullName : "N/A"
+        updatedReport.fullName = showFullName ? fullName : "Aaron Tso"
         updatedReport.phoneNumber = isContactEnabled ? phoneNumber : "N/A"
         updatedReport.audioFileURL = includeAudio && audioControl.isFileValid ? audioControl.getRecordingURL() : nil
         

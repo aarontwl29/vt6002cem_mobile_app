@@ -7,7 +7,7 @@ struct ReportView: View {
     @State private var showReportForm = false
     // Edit
     @State private var selectedReport: Report?
-    @State private var showDetails = false
+    @State private var showEditingView = false
     
     var body: some View {
         NavigationView {
@@ -49,6 +49,8 @@ struct ReportView: View {
                                 report: reportManager.reports[index],
                                 onEditTapped: {
                                     // Action for editing the report
+                                    selectedReport = reportManager.reports[index]
+                                    showEditingView = true
                                     print("Edit tapped for report: \(reportManager.reports[index])")
                                 },
                                 onDeleteTapped: {
@@ -67,10 +69,17 @@ struct ReportView: View {
                 ReportFormView(isPresented: $showReportForm)
                     .environmentObject(reportManager) // Pass environment object so we can append new reports
             }
+            .sheet(isPresented: $showEditingView) {
+                if let reportToEdit = selectedReport {
+                    View_Editing(report: reportToEdit)
+                        .environmentObject(reportManager)
+                }
+            }
         }
     }
 
 }
+
 
 
 

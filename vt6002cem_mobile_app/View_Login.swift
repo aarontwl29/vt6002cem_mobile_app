@@ -180,8 +180,8 @@ class ReportManager: ObservableObject {
             selectedDistrict: "Yau Tsim Mong",
             selectedDate: Date(),
             description: "A plastic bottle found near the park.",
-            fullName: "John Doe",
-            phoneNumber: "12345678",
+            fullName: "Aaron Tso",
+            phoneNumber: "",
             isFinished: true,
             isFavour: false
         )
