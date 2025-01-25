@@ -3,13 +3,19 @@ import Foundation
 
 struct View_Login: View {
     
+    @State private var email = ""
+    @State private var password = ""
     @State private var isLoggedIn = false
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    private let authManager = AuthManager()
     
     @StateObject private var reportManager = ReportManager()
     
     var body: some View {
         NavigationView {
             VStack {
+                
                 Spacer()
                 
                 // Logo
@@ -24,24 +30,43 @@ struct View_Login: View {
                     .padding(.bottom, 30)
                 
                 // Email Field
-                TextField("Email Address", text: .constant(""))
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
-                    .padding(.horizontal)
+                VStack(alignment: .leading) {
+                    
+                    TextField("Email Address", text: $email)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                }
+                .padding(.horizontal)
                 
                 // Password Field
-                SecureField("Password", text: .constant(""))
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
-                    .padding(.horizontal)
+                VStack(alignment: .leading) {
+                    
+                    SecureField("Password", text: $password)
+                        .padding()
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                }
+                .padding(.horizontal)
+                
+                
                 
                 // Sign In Button
                 Button(action: {
-                    // Add sign-in action here
-                    
-                    isLoggedIn = true
+                    authManager.loginUser(email: email, password: password) { success, error in
+                        DispatchQueue.main.async {
+                            if success {
+                                reportManager.email = email
+                                isLoggedIn = true
+                            } else {
+                                email = ""
+                                password = ""
+                                
+                                alertMessage = /*error ??*/ "Invalid credentials. Please try again."
+                                showAlert = true
+                            }
+                        }
+                    }
                 }) {
                     Text("SIGN IN")
                         .font(.headline)
@@ -56,6 +81,13 @@ struct View_Login: View {
                 .fullScreenCover(isPresented: $isLoggedIn) {
                     TabView_Main()
                         .environmentObject(reportManager)// The main TabView after login
+                }
+                .alert(isPresented: $showAlert) {
+                    Alert(
+                        title: Text("Login Failed"),
+                        message: Text(alertMessage),
+                        dismissButton: .default(Text("OK"))
+                    )
                 }
                 
                 // Divider for Social Login
@@ -167,6 +199,7 @@ struct View_Login: View {
 
 class ReportManager: ObservableObject {
     @Published var reports: [Report] = []
+    @Published var email: String?
     
     // sameple
     init() {
