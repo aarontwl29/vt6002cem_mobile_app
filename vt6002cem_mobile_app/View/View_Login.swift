@@ -1,6 +1,8 @@
 import SwiftUI
 import Foundation
 
+import WebKit
+
 struct View_Login: View {
     
     @State private var email = ""
@@ -9,6 +11,8 @@ struct View_Login: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     private let authManager = AuthManager()
+    
+    @State private var showGoogleLogin = false
     
     @StateObject private var reportManager = ReportManager()
     
@@ -133,6 +137,7 @@ struct View_Login: View {
                     
                     Button(action: {
                         // Google login action here
+                        showGoogleLogin = true
                     }) {
                         HStack {
                             Image("logo_google")
@@ -152,6 +157,9 @@ struct View_Login: View {
                             RoundedRectangle(cornerRadius: 8)
                                 .stroke(Color.gray, lineWidth: 1)
                         )
+                    }
+                    .sheet(isPresented: $showGoogleLogin) {
+                        WebView(url: URL(string: "https://accounts.google.com/signin")!)
                     }
                     
                     Button(action: {
@@ -222,6 +230,43 @@ class ReportManager: ObservableObject {
         reports.append(sampleReport)
     }
 }
+
+
+
+
+
+struct WebView: UIViewRepresentable {
+    let url: URL
+    
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        let request = URLRequest(url: url)
+        webView.load(request)
+        return webView
+    }
+    
+    func updateUIView(_ uiView: WKWebView, context: Context) {}
+}
+
+struct WebViewWrapper: View {
+    let url: URL
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            WebView(url: url)
+                .navigationBarTitle("Google Login", displayMode: .inline)
+                .navigationBarItems(leading: Button("Close") {
+                    presentationMode.wrappedValue.dismiss()
+                })
+        }
+    }
+}
+
+
+
+
+
 
 struct View_Login_Previews: PreviewProvider {
     static var previews: some View {
