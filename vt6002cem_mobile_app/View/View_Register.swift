@@ -8,6 +8,9 @@ struct View_Register: View {
     @State private var isPasswordMatched = false
     @Environment(\.presentationMode) var presentationMode
     
+    private let authManager = AuthManager()
+    @State private var errorMessage: String?
+    
     var body: some View {
         VStack {
             Spacer()
@@ -88,27 +91,33 @@ struct View_Register: View {
             .padding(.bottom, 20)
             
             // Sign Up Button
-                        Button(action: {
-                            if isPasswordMatched && !email.isEmpty && !fullName.isEmpty {
-                                // Simulate successful sign-up
+            Button(action: {
+                if isPasswordMatched && !email.isEmpty && !fullName.isEmpty {
+                    authManager.registerUser(email: email, fullName: fullName, password: password) { success, error in
+                        DispatchQueue.main.async {
+                            if success {
                                 print("Sign-up successful")
-                                presentationMode.wrappedValue.dismiss() // Dismiss the view
+                                presentationMode.wrappedValue.dismiss()
                             } else {
-                                // Handle invalid input
-                                print("Please fill all fields and ensure passwords match.")
+                                errorMessage = error
                             }
-                        }) {
-                            Text("SIGN UP")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(isPasswordMatched && !email.isEmpty && !fullName.isEmpty ? Color.blue : Color.gray) // Disable button if inputs are invalid
-                                .cornerRadius(8)
                         }
-                        .padding(.horizontal)
-                        .padding(.top, 10)
-                        .disabled(!(isPasswordMatched && !email.isEmpty && !fullName.isEmpty)) // Disable button when input is invalid
+                    }
+                } else {
+                    errorMessage = "Please fill all fields and ensure passwords match."
+                }
+            }) {
+                Text("SIGN UP")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(isPasswordMatched && !email.isEmpty && !fullName.isEmpty ? Color.blue : Color.gray) // Disable button if inputs are invalid
+                    .cornerRadius(8)
+            }
+            .padding(.horizontal)
+            .padding(.top, 10)
+            .disabled(!(isPasswordMatched && !email.isEmpty && !fullName.isEmpty)) // Disable button when input is invalid
             
             Spacer()
             
