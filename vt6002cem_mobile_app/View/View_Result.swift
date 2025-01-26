@@ -6,6 +6,20 @@ struct FindingLostResultView: View {
     
     @State private var selectedReport: Report?
     @State private var showDetailsSheet: Bool = false
+    
+//    // For modification (Should be Deleted later on)
+//
+//    @StateObject private var reportManager = ReportManager()
+//    @StateObject private var reportViewModel: ReportViewModel
+//    
+//    init(onClose: @escaping () -> Void) {
+//        let manager = ReportManager()
+//        _reportManager = StateObject(wrappedValue: manager)
+//        _reportViewModel = StateObject(wrappedValue: ReportViewModel(reportManager: manager))
+//        self.onClose = onClose
+//    }
+//    
+//    // For modification (Should be Deleted later on)
 
     var body: some View {
         NavigationView {
@@ -37,6 +51,8 @@ struct FindingLostResultView: View {
 
                 // Save Button
                 Button(action: {
+                    saveFavourites()
+                    
                     onClose()
                 }) {
                     Text("Save")
@@ -62,8 +78,20 @@ struct FindingLostResultView: View {
                 }
             }
             
+//            // For modification (Should be Deleted later on)
+//            
+//            .onAppear {
+//                reportViewModel.loadReports()
+//            }
+//            
+//            // For modification (Should be Deleted later on)
         }
     }
+    private func saveFavourites() {
+        for report in reportManager.reports {
+            print("Report ID: \(report.id), isFavour: \(report.isFavour)")
+        }
+    } 
 }
 
 
@@ -75,3 +103,4 @@ struct FindingLostResultView_Previews: PreviewProvider {
             .environmentObject(ReportManager())
     }
 }
+
