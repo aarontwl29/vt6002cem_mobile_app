@@ -27,9 +27,7 @@ struct TrackingReportView: View {
                             .font(.title)
                             .bold()
                         Spacer()
-                        Button(action: {
-                            print("Lost Found tapped")
-                        }) {
+                        Button(action: markAsLostFound) {
                             HStack(spacing: 5) {
                                 Image(systemName: "checkmark.seal.fill")
                                     .font(.title3)
@@ -171,6 +169,13 @@ struct TrackingReportView: View {
         .onAppear {
             reportViewModel.loadReports()
         }
+    }
+    
+    private func markAsLostFound() {
+        guard var currentReport = report else { return }
+        currentReport.isFinished = true
+        currentReport.isFavour = false
+        print("Marked as Lost Found: \(currentReport)")
     }
     
     // Helper function to format the date
