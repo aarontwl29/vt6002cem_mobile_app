@@ -15,6 +15,13 @@ struct View_Login: View {
     @State private var showGoogleLogin = false
     
     @StateObject private var reportManager = ReportManager()
+    @StateObject private var reportViewModel: ReportViewModel
+    
+    init() {
+        let manager = ReportManager()
+        _reportManager = StateObject(wrappedValue: manager)
+        _reportViewModel = StateObject(wrappedValue: ReportViewModel(reportManager: manager))
+    }
     
     var body: some View {
         NavigationView {
@@ -62,6 +69,8 @@ struct View_Login: View {
                             if success {
                                 reportManager.email = email
                                 isLoggedIn = true
+                                
+                                reportViewModel.loadReports()
                             } else {
                                 email = ""
                                 password = ""

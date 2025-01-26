@@ -152,6 +152,105 @@ class ReportViewModel: ObservableObject {
             }
         }.resume()
     }
+    
+    // Load all reports from Firestore and download images
+    func loadReports() {
+        guard let url = URL(string: baseURL) else { return }
+        
+        isLoading = true
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+            }
+            
+            if let error = error {
+                DispatchQueue.main.async {
+                    self?.errorMessage = "Fetch error: \(error.localizedDescription)"
+                }
+                return
+            }
+            guard let data = data else { return }
+            
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                if let documents = json?["documents"] as? [[String: Any]] {
+                    var fetchedReports: [Report] = []
+                    
+                    for doc in documents {
+                        if let fields = doc["fields"] as? [String: Any] {
+                            // Extract capturedImages field
+                            let imageUrls = self?.extractImageUrls(from: fields["capturedImages"])
+                            
+                            // Build the Report object
+                            let report = Report(
+                                capturedImages: [], // Images will be downloaded later
+                                imageUrls: imageUrls ?? [],
+                                species: (fields["species"] as? [String: Any])?["stringValue"] as? String ?? "",
+                                latitude: (fields["latitude"] as? [String: Any])?["stringValue"] as? String ?? "",
+                                longitude: (fields["longitude"] as? [String: Any])?["stringValue"] as? String ?? "",
+                                selectedArea: (fields["selectedArea"] as? [String: Any])?["stringValue"] as? String ?? "",
+                                selectedDistrict: (fields["selectedDistrict"] as? [String: Any])?["stringValue"] as? String ?? "",
+                                selectedDate: ISO8601DateFormatter().date(from: (fields["selectedDate"] as? [String: Any])?["timestampValue"] as? String ?? "") ?? Date(),
+                                description: (fields["description"] as? [String: Any])?["stringValue"] as? String ?? "",
+                                fullName: (fields["fullName"] as? [String: Any])?["stringValue"] as? String ?? "",
+                                phoneNumber: (fields["phoneNumber"] as? [String: Any])?["stringValue"] as? String ?? "",
+                                audioFileURL: URL(string: (fields["audioFileURL"] as? [String: Any])?["stringValue"] as? String ?? ""),
+                                isFinished: (fields["isFinished"] as? [String: Any])?["booleanValue"] as? Bool ?? false,
+                                isFavour: (fields["isFavour"] as? [String: Any])?["booleanValue"] as? Bool ?? false
+                            )
+                            fetchedReports.append(report)
+                        }
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self?.reportManager.reports = fetchedReports
+                        self?.downloadImagesForReports()
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self?.errorMessage = "JSON decode error: \(error.localizedDescription)"
+                }
+            }
+        }.resume()
+    }
+    
+    // Extract image URLs from the capturedImages field
+    private func extractImageUrls(from field: Any?) -> [String] {
+        guard let arrayValue = field as? [String: Any],
+              let values = arrayValue["arrayValue"] as? [String: Any],
+              let urls = values["values"] as? [[String: Any]] else {
+            return []
+        }
+        return urls.compactMap { $0["stringValue"] as? String }
+    }
+    
+    
+    // Download images from URLs and update `capturedImages` for each report
+    private func downloadImagesForReports() {
+        for (index, report) in reportManager.reports.enumerated() {
+            var updatedImages: [UIImage] = []
+            let group = DispatchGroup()
+            
+            for urlString in report.imageUrls {
+                guard let url = URL(string: urlString) else { continue }
+                
+                group.enter()
+                URLSession.shared.dataTask(with: url) { data, response, error in
+                    if let data = data, let image = UIImage(data: data) {
+                        updatedImages.append(image)
+                    } else {
+                        print("Failed to download image from URL: \(urlString)")
+                    }
+                    group.leave()
+                }.resume()
+            }
+            
+            group.notify(queue: .main) {
+                self.reportManager.reports[index].capturedImages = updatedImages
+            }
+        }
+    }
 }
 
 
@@ -200,7 +299,7 @@ func uploadImage(image: UIImage, completion: @escaping (Result<String, Error>) -
     let imageData = image.jpegData(compressionQuality: 0.8)!
     body.append("--\(boundary)\r\n".data(using: .utf8)!)
     body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(uniqueFilename)\"\r\n".data(using: .utf8)!)
-
+    
     body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
     body.append(imageData)
     body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
@@ -222,3 +321,6 @@ func uploadImage(image: UIImage, completion: @escaping (Result<String, Error>) -
         completion(.success(url))
     }.resume()
 }
+
+
+
