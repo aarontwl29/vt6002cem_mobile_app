@@ -20,7 +20,7 @@ struct TabView_Main: View {
                 }
             
             // Navigation (Map Guide on GPS) Page
-            ReportView()
+            TrackingReportView()
                 .tabItem {
                     Image(systemName: "map.circle.fill")
                     Text("Navigation")
