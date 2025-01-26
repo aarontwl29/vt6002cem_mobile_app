@@ -3,19 +3,12 @@ import AVKit
 import MapKit
 
 struct TrackingReportView: View {
-    @StateObject private var reportManager: ReportManager
-    @StateObject private var reportViewModel: ReportViewModel
-    @State private var report: Report? // Report to display
+    @EnvironmentObject var reportManager: ReportManager
+    
+    @State private var report: Report?
     @State private var isPlayingAudio = false
     @State private var audioPlayer: AVPlayer?
-    @State private var showContactInfo = false // Toggle contact info visibility
-    
-    // Custom initializer to load the first report
-    init() {
-        let manager = ReportManager()
-        _reportManager = StateObject(wrappedValue: manager)
-        _reportViewModel = StateObject(wrappedValue: ReportViewModel(reportManager: manager))
-    }
+    @State private var showContactInfo = false
     
     var body: some View {
         NavigationView {
@@ -159,24 +152,58 @@ struct TrackingReportView: View {
                     }
                     
                 } else {
-                    Text("Loading report...")
-                        .onAppear {
-                            loadFirstReport()
-                        }
+                    VStack {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 100, height: 100)
+                            .foregroundColor(.gray)
+                        Text("No cases selected.")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                            .padding(.top, 10)
+                        Text("Please select a case to start tracking.")
+                            .font(.body)
+                            .foregroundColor(.gray)
+                    }
+                    .padding()
                 }
+            }.onAppear {
+                refreshView()
             }
         }
-        .onAppear {
-            reportViewModel.loadReports()
+    }
+    
+    
+    private func refreshView() {
+        if let nextFavourReport = reportManager.reports.first(where: { $0.isFavour }) {
+            report = nextFavourReport
+            print("Found a report marked as isFavour: \(nextFavourReport)")
+        } else {
+            // No more reports marked as isFavour
+            report = nil
+            print("No case marked as isFavour. Prompting user to select one.")
         }
     }
     
     private func markAsLostFound() {
-        guard var currentReport = report else { return }
-        currentReport.isFinished = true
-        currentReport.isFavour = false
-        print("Marked as Lost Found: \(currentReport)")
+        guard let currentReport = report else { return }
+        
+        // Find the index of the current report in the reports array
+        if let index = reportManager.reports.firstIndex(where: { $0.id == currentReport.id }) {
+            // Update the report in the array
+            reportManager.reports[index].isFinished = true
+            reportManager.reports[index].isFavour = false
+            
+            // Print confirmation
+            print("Marked as Lost Found: \(reportManager.reports[index])")
+            
+            refreshView()
+        } else {
+            print("Report not found in the reports array.")
+        }
     }
+    
     
     // Helper function to format the date
     private func formatDate(_ date: Date) -> String {
@@ -207,22 +234,7 @@ struct TrackingReportView: View {
             MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
         ])
     }
-
     
-    // Helper function to load the first report
-    private func loadFirstReport() {
-        print("Starting to load the first report...") // Debug message
-        reportViewModel.loadReports()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { // Simulate loading time
-            if let firstReport = reportManager.reports.first {
-                self.report = firstReport
-                print("First report loaded successfully: \(firstReport)") // Debug message
-            } else {
-                print("No reports found in the database.") // Debug message
-            }
-        }
-    }
     
     // Toggle audio playback
     private func toggleAudioPlayback() {
@@ -290,5 +302,6 @@ struct InfoSection: View {
 struct TrackingReportView_Previews: PreviewProvider {
     static var previews: some View {
         TrackingReportView()
+            .environmentObject(ReportManager())
     }
 }
