@@ -5,6 +5,7 @@ struct Report {
     let id = UUID()
     
     var capturedImages: [UIImage] = []
+    var imageUrls: [String] = [] 
     var species: String = "Select Item"
     var latitude: String = "Latitude: N/A"
     var longitude: String = "Longitude: N/A"

@@ -14,7 +14,7 @@ struct ReportFormView: View {
     
     //others
     @State private var species: String = "Select Item"
-
+    
     @State private var selectedArea: String = "Select Area"
     @State private var selectedDistrict: String = "Select District"
     @State private var selectedDate = Date() // For current date and time
@@ -131,7 +131,7 @@ struct ReportFormView: View {
                             .cornerRadius(8)
                         }
                     }
-          
+                    
                     // 3. Location Result + Get Location Button in the Same Row
                     HStack(spacing: 15) {
                         // Longitude and Latitude Display
@@ -163,7 +163,7 @@ struct ReportFormView: View {
                             locationManager.requestLocation()
                             print("Get Location tapped")
                             
-
+                            
                             selectedArea = "New Territories"
                             districtOptions = areaDistrictMapping[selectedArea] ?? [] // Update district options
                             selectedDistrict = "Sha Tin"
@@ -243,11 +243,11 @@ struct ReportFormView: View {
                             }
                         }
                     }
-
-                     
+                    
+                    
                     // 5. Date and Time Input + Get Current Date Button
                     VStack(alignment: .leading, spacing: 10) {
-  
+                        
                         
                         HStack(spacing: 0) {
                             // Date Display
@@ -262,12 +262,12 @@ struct ReportFormView: View {
                                         print("Date updated: \(formatDate(selectedDate))") // Log local time
                                     }
                                 ), displayedComponents: .date)
-                                    .labelsHidden()
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.gray.opacity(0.1))
-                                            .frame(height: 36)
-                                    )
+                                .labelsHidden()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.gray.opacity(0.1))
+                                        .frame(height: 36)
+                                )
                             }
                             
                             Spacer()
@@ -284,17 +284,17 @@ struct ReportFormView: View {
                                         print("Time updated: \(formatDate(selectedDate))") // Log local time
                                     }
                                 ), displayedComponents: .hourAndMinute)
-                                    .labelsHidden()
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.gray.opacity(0.1))
-                                            .frame(height: 36)
-                                    )
+                                .labelsHidden()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.gray.opacity(0.1))
+                                        .frame(height: 36)
+                                )
                             }
                         }
                         .padding(.horizontal)
                     }
-
+                    
                     
                     // Next Button
                     Button(action: {
@@ -324,6 +324,7 @@ struct ReportFormView: View {
                 ))
             }
             .sheet(isPresented: $showNextSheet) {
+                
                 let report = Report(
                     capturedImages: capturedImages,
                     species: species,
@@ -332,12 +333,7 @@ struct ReportFormView: View {
                     selectedArea: selectedArea,
                     selectedDistrict: selectedDistrict,
                     selectedDate: selectedDate
-//                    description: description,
-//                    fullName: fullName,
-//                    phoneNumber: phoneNumber,
-//                    audioFileURL: audioControl.getRecordingURL()
                 )
-                
                 View_Reporting_Next(report: report, dismissAllSheets: {
                     dismissAllSheets()
                 })

@@ -3,7 +3,8 @@ import SwiftUI
 struct View_Reporting_Next: View {
     var report: Report
     @EnvironmentObject var reportManager: ReportManager
-   
+    
+    
     var dismissAllSheets: () -> Void
     
     @State private var description: String = ""
@@ -173,34 +174,97 @@ struct View_Reporting_Next: View {
     
     private func submitFeedback() {
         
-        print("Report added successfully. Total reports count: \(reportManager.reports.count)")
-        
-        var updatedReport = report
-        updatedReport.description = description
-        updatedReport.fullName = showFullName ? fullName : "Aaron Tso"
-        updatedReport.phoneNumber = isContactEnabled ? phoneNumber : "N/A"
-        updatedReport.audioFileURL = includeAudio && audioControl.isFileValid ? audioControl.getRecordingURL() : nil
-        
-        reportManager.reports.append(updatedReport)
-        print("Report added successfully. Total reports count: \(reportManager.reports.count)")
-        
-        print("Feedback submitted successfully:")
-        print("Captured Images Count: \(updatedReport.capturedImages.count)")
-        print("Species: \(updatedReport.species)")
-        print("Latitude: \(updatedReport.latitude)")
-        print("Longitude: \(updatedReport.longitude)")
-        print("Selected Area: \(updatedReport.selectedArea)")
-        print("Selected District: \(updatedReport.selectedDistrict)")
-        print("Selected Date: \(updatedReport.selectedDate)")
-        print("Description: \(updatedReport.description)")
-        print("Full Name: \(updatedReport.fullName)")
-        print("Phone Number: \(updatedReport.phoneNumber)")
         
         
-        if let audioFileURL = updatedReport.audioFileURL {
-            print("Audio File: \(audioFileURL.absoluteString)")
-        } else {
-            print("No audio file attached.")
+        //        print("Report added successfully. Total reports count: \(reportManager.reports.count)")
+        //
+        //        var updatedReport = report
+        //        updatedReport.description = description
+        //        updatedReport.fullName = showFullName ? fullName : "Aaron Tso"
+        //        updatedReport.phoneNumber = isContactEnabled ? phoneNumber : "N/A"
+        //        updatedReport.audioFileURL = includeAudio && audioControl.isFileValid ? audioControl.getRecordingURL() : nil
+        //
+        //
+        //
+        //        reportManager.reports.append(updatedReport)
+        //        print("Report added successfully. Total reports count: \(reportManager.reports.count)")
+        //
+        //        print("Feedback submitted successfully:")
+        //        print("Captured Images Count: \(updatedReport.capturedImages.count)")
+        //        print("Species: \(updatedReport.species)")
+        //        print("Latitude: \(updatedReport.latitude)")
+        //        print("Longitude: \(updatedReport.longitude)")
+        //        print("Selected Area: \(updatedReport.selectedArea)")
+        //        print("Selected District: \(updatedReport.selectedDistrict)")
+        //        print("Selected Date: \(updatedReport.selectedDate)")
+        //        print("Description: \(updatedReport.description)")
+        //        print("Full Name: \(updatedReport.fullName)")
+        //        print("Phone Number: \(updatedReport.phoneNumber)")
+        //
+        //
+        //        if let audioFileURL = updatedReport.audioFileURL {
+        //            print("Audio File: \(audioFileURL.absoluteString)")
+        //        } else {
+        //            print("No audio file attached.")
+        //        }
+        
+        ///
+        ///
+        ///
+//        var updatedReport = report
+//        updatedReport.description = description
+//        updatedReport.fullName = showFullName ? fullName : "Aaron Tso"
+//        updatedReport.phoneNumber = isContactEnabled ? phoneNumber : "N/A"
+//        
+//        // 1) Insert locally into reportManager
+//        reportManager.reports.append(updatedReport)
+//        print("Local array now has \(reportManager.reports.count) items.")
+//        
+//        // 2) Post to Firestore via REST
+//        
+//        
+//        let reportViewModel = ReportViewModel(reportManager: reportManager)
+//        reportViewModel.addReport(updatedReport) { success in
+//            if success {
+//                print("Successfully added to Firestore (REST).")
+//            } else {
+//                print("Failed to add doc to Firestore.")
+//            }
+//        }
+//        
+//        dismissAllSheets() // close form
+        
+        ///
+        ///
+        // Upload images first
+        uploadImages(images: report.capturedImages) { urls in
+            guard let urls = urls else {
+                print("Failed to upload images.")
+                return
+            }
+            
+            // Update the report with image URLs
+            var updatedReport = report
+            updatedReport.description = description
+            updatedReport.fullName = showFullName ? fullName : "Aaron Tso"
+            updatedReport.phoneNumber = isContactEnabled ? phoneNumber : "N/A"
+            updatedReport.imageUrls = urls
+            
+            // 1) Insert locally into reportManager
+            reportManager.reports.append(updatedReport)
+            print("Local array now has \(reportManager.reports.count) items.")
+            
+            // Save to Firestore
+            let reportViewModel = ReportViewModel(reportManager: reportManager)
+            reportViewModel.addReport(updatedReport) { success in
+                if success {
+                    print("Successfully added report to Firestore.")
+                } else {
+                    print("Failed to add report to Firestore.")
+                }
+            }
+            
+            dismissAllSheets()
         }
     }
 }
