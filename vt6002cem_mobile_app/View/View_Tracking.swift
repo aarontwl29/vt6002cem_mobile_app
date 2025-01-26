@@ -1,5 +1,6 @@
 import SwiftUI
 import AVKit
+import MapKit
 
 struct TrackingReportView: View {
     @StateObject private var reportManager: ReportManager
@@ -8,14 +9,14 @@ struct TrackingReportView: View {
     @State private var isPlayingAudio = false
     @State private var audioPlayer: AVPlayer?
     @State private var showContactInfo = false // Toggle contact info visibility
-
+    
     // Custom initializer to load the first report
     init() {
         let manager = ReportManager()
         _reportManager = StateObject(wrappedValue: manager)
         _reportViewModel = StateObject(wrappedValue: ReportViewModel(reportManager: manager))
     }
-
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -42,7 +43,7 @@ struct TrackingReportView: View {
                         }
                     }
                     .padding()
-
+                    
                     ScrollView {
                         VStack(spacing: 20) {
                             // 1. Scroll View for Images
@@ -68,14 +69,14 @@ struct TrackingReportView: View {
                                     .foregroundColor(.gray)
                                     .italic()
                             }
-
+                            
                             // 2. Basic Information
                             Group {
                                 InfoRow(title: "Type", content: report.species)
                                 InfoRow(title: "Date", content: formatDate(report.selectedDate))
                             }
                             .padding(.horizontal)
-
+                            
                             // 3. Location Group
                             VStack(alignment: .leading, spacing: 5) {
                                 Text("Location")
@@ -89,10 +90,10 @@ struct TrackingReportView: View {
                                 }
                             }
                             .padding()
-
+                            
                             // 4. Description
                             InfoSection(title: "Description", content: report.description.isEmpty ? "No description provided." : report.description)
-
+                            
                             // 5. Voice Comment
                             if let audioURL = report.audioFileURL {
                                 VStack(alignment: .leading, spacing: 5) {
@@ -117,7 +118,7 @@ struct TrackingReportView: View {
                                     .foregroundColor(.gray)
                                     .italic()
                             }
-
+                            
                             // 6. Contact Information with Expand/Collapse
                             VStack(alignment: .leading, spacing: 5) {
                                 HStack {
@@ -133,7 +134,7 @@ struct TrackingReportView: View {
                                     }
                                 }
                                 Divider()
-
+                                
                                 if showContactInfo {
                                     InfoRow(title: "Full Name", content: report.fullName.isEmpty ? "N/A" : report.fullName)
                                     InfoRow(title: "Phone Number", content: report.phoneNumber.isEmpty ? "N/A" : report.phoneNumber)
@@ -143,11 +144,12 @@ struct TrackingReportView: View {
                         }
                         .padding()
                     }
-
+                    
                     // Circular Navigation Button at the Bottom
-                   
+                    
                     Button(action: {
                         print("Start navigation tapped")
+                        startNavigation()
                     }) {
                         Image(systemName: "location.fill")
                             .font(.title)
@@ -157,7 +159,7 @@ struct TrackingReportView: View {
                             .clipShape(Circle())
                             .shadow(radius: 5)
                     }
-        
+                    
                 } else {
                     Text("Loading report...")
                         .onAppear {
@@ -170,19 +172,43 @@ struct TrackingReportView: View {
             reportViewModel.loadReports()
         }
     }
-
+    
     // Helper function to format the date
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter.string(from: date)
     }
+    
+    // Function to open Apple Maps or Google Maps for navigation
+    private func startNavigation() {
+        guard let report = report else { return }
+        
+        // Sanitize latitude and longitude values
+        let sanitizedLatitude = report.latitude.replacingOccurrences(of: "Latitude:", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let sanitizedLongitude = report.longitude.replacingOccurrences(of: "Longitude:", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        guard let latitude = Double(sanitizedLatitude),
+              let longitude = Double(sanitizedLongitude) else {
+            print("Invalid GPS coordinates after sanitization.")
+            return
+        }
+        
+        let coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        let placemark = MKPlacemark(coordinate: coordinate)
+        let mapItem = MKMapItem(placemark: placemark)
+        mapItem.name = "Destination"
+        mapItem.openInMaps(launchOptions: [
+            MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
+        ])
+    }
 
+    
     // Helper function to load the first report
     private func loadFirstReport() {
         print("Starting to load the first report...") // Debug message
         reportViewModel.loadReports()
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { // Simulate loading time
             if let firstReport = reportManager.reports.first {
                 self.report = firstReport
@@ -192,11 +218,11 @@ struct TrackingReportView: View {
             }
         }
     }
-
+    
     // Toggle audio playback
     private func toggleAudioPlayback() {
         guard let url = report?.audioFileURL else { return }
-
+        
         if isPlayingAudio {
             stopAudioPlayback()
         } else {
@@ -205,7 +231,7 @@ struct TrackingReportView: View {
             isPlayingAudio = true
         }
     }
-
+    
     // Stop audio playback
     private func stopAudioPlayback() {
         audioPlayer?.pause()
@@ -213,11 +239,13 @@ struct TrackingReportView: View {
     }
 }
 
+
+
 // Subview for a single row of information
 struct InfoRow: View {
     let title: String
     let content: String
-
+    
     var body: some View {
         HStack {
             Text("\(title):")
@@ -239,7 +267,7 @@ struct InfoRow: View {
 struct InfoSection: View {
     let title: String
     let content: String
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             Text(title)
