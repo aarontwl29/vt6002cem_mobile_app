@@ -27,7 +27,7 @@ struct TabView_Main: View {
                 }
             
             // Profile Page
-            ReportView()
+            ProfileView()
                 .tabItem {
                     Image(systemName: "person.circle.fill")
                     Text("Profile")
