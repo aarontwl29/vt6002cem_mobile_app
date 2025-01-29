@@ -1,10 +1,22 @@
 import SwiftUI
 
 struct WelcomeBackView: View {
-    // Sample user data (Replace later with actual login data)
-    let username: String = "Aaron"
-    let email: String = "aaron@example.com"
 
+    @State private var user = AppSettings.getUser()
+    @State private var isDarkMode = AppSettings.isDarkMode()
+    @Environment(\.colorScheme) var colorScheme
+
+    @State private var isNavigating = false
+    
+    @StateObject private var reportManager = ReportManager()
+    @StateObject private var reportViewModel: ReportViewModel
+    
+    init() {
+        let manager = ReportManager()
+        _reportManager = StateObject(wrappedValue: manager)
+        _reportViewModel = StateObject(wrappedValue: ReportViewModel(reportManager: manager))
+    }
+    
     var body: some View {
         VStack(spacing: 30) {
             Spacer()
@@ -15,14 +27,15 @@ struct WelcomeBackView: View {
                     .font(.largeTitle)
                     .bold()
 
-                // Styling the name separately to ensure it is black and bold
+                
                 Text("You're signed in as ")
                     .font(.body)
-                    .foregroundColor(.gray) +
-                Text(username)
+                    .foregroundColor(.secondary) +
+                Text(user.fullName)
                     .font(.body)
                     .bold()
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
+                
             }
             .multilineTextAlignment(.center)
             .padding(.horizontal, 30) // Limits width for better readability
@@ -33,14 +46,14 @@ struct WelcomeBackView: View {
                     .fill(Color.gray.opacity(0.8))
                     .frame(width: 85, height: 85)
                     .overlay(
-                        Text(String(username.prefix(1)).uppercased()) // First letter as initials
+                        Text(String(user.fullName.prefix(1)).uppercased()) // First letter as initials
                             .foregroundColor(.white)
                             .font(.largeTitle)
                             .bold()
                     )
 
                 // Darker email for better visibility
-                Text(email)
+                Text(user.email)
                     .font(.body)
                     .foregroundColor(.primary) // Uses system default text color (darker)
             }
@@ -54,6 +67,10 @@ struct WelcomeBackView: View {
             VStack(spacing: 12) {
                 Button(action: {
                     print("Continue tapped")
+                    
+                    reportViewModel.loadReports()
+                    isNavigating = true
+                    
                 }) {
                     Text("Continue")
                         .font(.headline)
@@ -63,9 +80,14 @@ struct WelcomeBackView: View {
                         .background(Color.blue)
                         .cornerRadius(10)
                 }
+                .fullScreenCover(isPresented: $isNavigating) {
+                    TabView_Main()
+                        .environmentObject(reportManager)
+                }
 
                 Button(action: {
                     print("Sign in with Another Account tapped")
+                    
                 }) {
                     HStack {
                         Image(systemName: "arrow.triangle.2.circlepath.circle.fill") // Exchange-like icon
@@ -83,6 +105,14 @@ struct WelcomeBackView: View {
             Spacer()
         }
         .background(Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all))
+        .preferredColorScheme(isDarkMode ? .dark : .light) // Apply dark mode globally
+        .onAppear {
+            user = AppSettings.getUser()
+            isDarkMode = AppSettings.isDarkMode()
+            
+            // Apply dark mode to entire app session
+            UIApplication.shared.windows.first?.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+        }
     }
 }
 

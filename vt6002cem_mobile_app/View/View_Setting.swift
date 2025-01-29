@@ -3,8 +3,8 @@ import SwiftUI
 struct ProfileView: View {
     @State private var telephoneNumber: String = "1234567890"
     @State private var isEditingPhone: Bool = false
-    @State private var isDarkMode: Bool = false
-    @Environment(\.colorScheme) var colorScheme
+
+    @State private var isDarkMode = AppSettings.isDarkMode()
 
     var body: some View {
         NavigationView {
@@ -79,7 +79,9 @@ struct ProfileView: View {
                         Toggle("", isOn: $isDarkMode)
                             .labelsHidden()
                             .onChange(of: isDarkMode) { value in
-                                UIApplication.shared.windows.first?.overrideUserInterfaceStyle = value ? .dark : .light
+//                                UIApplication.shared.windows.first?.overrideUserInterfaceStyle = value ? .dark : .light
+                                
+                                AppSettings.setDarkMode(value)
                             }
                     }
                     .padding()
@@ -168,6 +170,10 @@ struct ProfileView: View {
             }
 //            .navigationTitle("Profile")
             .background(Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all))
+            .preferredColorScheme(isDarkMode ? .dark : .light)
+            .onAppear {
+                isDarkMode = AppSettings.isDarkMode() 
+            }
         }
     }
 }

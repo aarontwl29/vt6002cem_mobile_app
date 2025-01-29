@@ -71,6 +71,11 @@ struct View_Login: View {
                                 isLoggedIn = true
                                 
                                 reportViewModel.loadReports()
+                                
+                                let user = User(email: email, fullName: "Aaron Tso", phone: "")
+                                AppSettings.saveUser(user)
+                                AppSettings.setLoggedIn(true) 
+                                
                             } else {
                                 email = ""
                                 password = ""
