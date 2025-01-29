@@ -4,6 +4,11 @@ struct ProfileView: View {
     @State private var user: User = AppSettings.getUser()
     @State private var isEditingPhone: Bool = false
     
+    @State private var newPassword: String = ""
+    @State private var confirmPassword: String = ""
+    @State private var showPasswordError: Bool = false
+    @State private var showChangePassword: Bool = false
+    
     @EnvironmentObject var darkModeStore: DarkModeStore
     
     @State private var isLoggedOut = false
@@ -38,7 +43,7 @@ struct ProfileView: View {
                 .background(Color(UIColor.systemGray6))
                 .cornerRadius(12)
                 .padding(.horizontal)
-                .padding(.top, 50)  // top padding
+                .padding(.top, 20)  // top padding
                 
                 // General Section
                 SectionHeader(title: "GENERAL")
@@ -86,7 +91,7 @@ struct ProfileView: View {
                 .background(Color(UIColor.systemGray6))
                 .cornerRadius(12)
                 .padding(.horizontal)
-
+                
                 
                 // Account Section
                 SectionHeader(title: "ACCOUNT")
@@ -114,6 +119,69 @@ struct ProfileView: View {
                         }
                     }
                     .padding()
+                    
+                    
+                    
+                    Divider()
+                    
+                    // Change Password Fields
+                    HStack {
+                        Image(systemName: "lock.fill")
+                            .foregroundColor(.gray)
+                        Text("Change Password")
+                        
+                        // ✅ Moved Arrow Closer to Text
+                        Button(action: {
+                            showChangePassword.toggle()
+                        }) {
+                            Image(systemName: showChangePassword ? "chevron.up" : "chevron.down") // Toggle arrow
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.leading, 4) // ✅ Adds a small space for better alignment
+                        
+                        Spacer()
+                        
+                        Button(action: handleChangePassword) {
+                            Text("Update")
+                                .font(.footnote)
+                                .foregroundColor(.blue)
+                                .bold()
+                        }
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.blue, lineWidth: 1)
+                        )
+                    }
+                    .padding()
+                    
+                    // ✅ Conditionally Show Password Fields
+                    if showChangePassword {
+                        VStack(spacing: 12) {
+                            SecureField("New Password", text: $newPassword)
+                                .padding()
+                                .background(Color(UIColor.systemGray6))
+                                .cornerRadius(8)
+                                .textContentType(.newPassword)
+                            
+                            SecureField("Confirm Password", text: $confirmPassword)
+                                .padding()
+                                .background(Color(UIColor.systemGray6))
+                                .cornerRadius(8)
+                                .textContentType(.newPassword)
+                            
+                            // ✅ Password mismatch error message
+                            if showPasswordError {
+                                Text("Passwords do not match.")
+                                    .foregroundColor(.red)
+                                    .font(.footnote)
+                            }
+                        }
+                        .padding()
+                    }
+                    
+                    
                 }
                 .background(Color(UIColor.systemGray6))
                 .cornerRadius(12)
@@ -185,6 +253,20 @@ struct ProfileView: View {
         let initials = words.map { String($0.prefix(1)) }.joined().uppercased()
         return initials.isEmpty ? "?" : initials
     }
+    
+    private func handleChangePassword() {
+        if newPassword.isEmpty || confirmPassword.isEmpty {
+            showPasswordError = true
+            return
+        }
+        
+        if newPassword == confirmPassword {
+            showPasswordError = false
+            print("Password updated successfully!")
+        } else {
+            showPasswordError = true
+        }
+    }
 }
 
 struct SectionHeader: View {
@@ -206,6 +288,6 @@ struct SectionHeader: View {
 struct ProfileView_Previews: PreviewProvider {
     static var previews: some View {
         ProfileView()
-            .preferredColorScheme(.light)
+            .environmentObject(DarkModeStore())
     }
 }
