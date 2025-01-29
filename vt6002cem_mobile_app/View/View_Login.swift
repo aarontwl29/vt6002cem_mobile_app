@@ -17,6 +17,8 @@ struct View_Login: View {
     @StateObject private var reportManager = ReportManager()
     @StateObject private var reportViewModel: ReportViewModel
     
+    @EnvironmentObject var darkModeStore: DarkModeStore
+    
     init() {
         let manager = ReportManager()
         _reportManager = StateObject(wrappedValue: manager)
@@ -74,7 +76,7 @@ struct View_Login: View {
                                 
                                 let user = User(email: email, fullName: "Aaron Tso", phone: "")
                                 AppSettings.saveUser(user)
-                                AppSettings.setLoggedIn(true) 
+                                AppSettings.setLoggedIn(true)
                                 
                             } else {
                                 email = ""
@@ -215,6 +217,9 @@ struct View_Login: View {
                 }
                 .padding(.bottom, 30)
             }
+            .background(darkModeStore.isDarkMode ? Color.black : Color(UIColor.systemGroupedBackground))
+            .preferredColorScheme(darkModeStore.isDarkMode ? .dark : .light)
+            
         }
     }
 }

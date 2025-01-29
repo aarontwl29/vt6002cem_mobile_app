@@ -1,11 +1,13 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @State private var telephoneNumber: String = "1234567890"
+    @State private var user: User = AppSettings.getUser()
     @State private var isEditingPhone: Bool = false
-
-    @State private var isDarkMode = AppSettings.isDarkMode()
-
+    
+    @EnvironmentObject var darkModeStore: DarkModeStore
+    
+    @State private var isLoggedOut = false
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 16) {
@@ -16,16 +18,16 @@ struct ProfileView: View {
                             .fill(Color.gray)
                             .frame(width: 80, height: 80)
                             .overlay(
-                                Text("MC")
+                                Text(getInitials(from: user.fullName))
                                     .foregroundColor(.white)
                                     .bold()
                                     .font(.largeTitle)
                             )
                         VStack(alignment: .leading) {
-                            Text("Chan Man")
+                            Text(user.fullName)
                                 .font(.title2)
                                 .bold()
-                            Text("demo1@gmail.com")
+                            Text(user.email)
                                 .font(.body)
                                 .foregroundColor(.gray)
                         }
@@ -37,7 +39,7 @@ struct ProfileView: View {
                 .cornerRadius(12)
                 .padding(.horizontal)
                 .padding(.top, 50)  // top padding
-
+                
                 // General Section
                 SectionHeader(title: "GENERAL")
                 VStack(spacing: 0) {
@@ -66,9 +68,9 @@ struct ProfileView: View {
                         )
                     }
                     .padding()
-
+                    
                     Divider()
-
+                    
                     HStack {
                         Image(systemName: "moon.stars.fill")
                             .foregroundColor(.gray)
@@ -76,13 +78,8 @@ struct ProfileView: View {
                         Spacer()
                         Text("Dark")
                             .foregroundColor(.gray)
-                        Toggle("", isOn: $isDarkMode)
+                        Toggle("", isOn: $darkModeStore.isDarkMode)
                             .labelsHidden()
-                            .onChange(of: isDarkMode) { value in
-//                                UIApplication.shared.windows.first?.overrideUserInterfaceStyle = value ? .dark : .light
-                                
-                                AppSettings.setDarkMode(value)
-                            }
                     }
                     .padding()
                 }
@@ -90,6 +87,7 @@ struct ProfileView: View {
                 .cornerRadius(12)
                 .padding(.horizontal)
 
+                
                 // Account Section
                 SectionHeader(title: "ACCOUNT")
                 VStack(spacing: 0) {
@@ -98,16 +96,16 @@ struct ProfileView: View {
                             .foregroundColor(.gray)
                         Text("Telephone No.")
                         Spacer()
-                        TextField("Enter number", text: $telephoneNumber)
+                        TextField("Enter number", text: $user.phone)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .disabled(!isEditingPhone)
                             .frame(width: 150)
-
+                        
                         Button(action: {
                             isEditingPhone.toggle()
                             if !isEditingPhone {
                                 // Handle save logic
-                                print("Telephone number saved: \(telephoneNumber)")
+                                print("Telephone number saved: \($user.phone)")
                             }
                         }) {
                             Image(systemName: isEditingPhone ? "checkmark.circle.fill" : "pencil.circle")
@@ -120,17 +118,15 @@ struct ProfileView: View {
                 .background(Color(UIColor.systemGray6))
                 .cornerRadius(12)
                 .padding(.horizontal)
-
+                
                 // Sign Out and Quit Section
                 Divider()
                     .padding(.horizontal)
-
+                
                 HStack {
                     Spacer()
-
-                    Button(action: {
-                        print("Sign Out tapped")
-                    }) {
+                    
+                    Button(action: signOut) {
                         HStack {
                             Image(systemName: "arrowshape.turn.up.left.fill")
                                 .foregroundColor(.red)
@@ -143,9 +139,9 @@ struct ProfileView: View {
                         .background(Color(UIColor.systemGray6))
                         .cornerRadius(8)
                     }
-
+                    
                     Spacer()
-
+                    
                     Button(action: {
                         exit(0) // Quit the app
                     }) {
@@ -161,26 +157,39 @@ struct ProfileView: View {
                         .background(Color(UIColor.systemGray6))
                         .cornerRadius(8)
                     }
-
+                    
                     Spacer()
                 }
                 .padding(.horizontal)
-
+                
                 Spacer()
             }
-//            .navigationTitle("Profile")
+            //            .navigationTitle("Profile")
             .background(Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all))
-            .preferredColorScheme(isDarkMode ? .dark : .light)
-            .onAppear {
-                isDarkMode = AppSettings.isDarkMode() 
+            .fullScreenCover(isPresented: $isLoggedOut) {  // 🔹 Redirect to login
+                View_Login()
             }
         }
+    }
+    
+    private func signOut() {
+        AppSettings.setLoggedIn(false)
+        AppSettings.clearUser()
+        
+        isLoggedOut = true
+        print("User signed out, login state cleared.")
+    }
+    
+    private func getInitials(from fullName: String) -> String {
+        let words = fullName.split(separator: " ")
+        let initials = words.map { String($0.prefix(1)) }.joined().uppercased()
+        return initials.isEmpty ? "?" : initials
     }
 }
 
 struct SectionHeader: View {
     let title: String
-
+    
     var body: some View {
         HStack {
             Text(title)

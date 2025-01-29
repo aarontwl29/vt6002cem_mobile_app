@@ -104,14 +104,15 @@ struct WelcomeBackView: View {
 
             Spacer()
         }
-        .background(Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all))
+//        .background(Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all))
+        .background(isDarkMode ? Color.black : Color(UIColor.systemGroupedBackground))
         .preferredColorScheme(isDarkMode ? .dark : .light) // Apply dark mode globally
         .onAppear {
             user = AppSettings.getUser()
             isDarkMode = AppSettings.isDarkMode()
             
-            // Apply dark mode to entire app session
-            UIApplication.shared.windows.first?.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+//            // Apply dark mode to entire app session
+//            UIApplication.shared.windows.first?.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
         }
     }
 }

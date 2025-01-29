@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TabView_Main: View {
     
+    @EnvironmentObject var darkModeStore: DarkModeStore
     
     var body: some View {
         TabView {
@@ -34,6 +35,8 @@ struct TabView_Main: View {
                 }
         }
         .accentColor(.blue) // Customizes the active tab color
+        
+        .preferredColorScheme(darkModeStore.isDarkMode ? .dark : .light)
     }
 }
 

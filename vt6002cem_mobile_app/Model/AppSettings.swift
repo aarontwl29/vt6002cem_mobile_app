@@ -1,4 +1,6 @@
 import Foundation
+import SwiftUI
+import Combine
 
 class AppSettings {
     private static let loginKey = "isLoggedIn"
@@ -43,5 +45,21 @@ class AppSettings {
 
     static func clearUser() {
         UserDefaults.standard.removeObject(forKey: userKey)
+    }
+}
+
+
+
+class DarkModeStore: ObservableObject {
+    @Published var isDarkMode: Bool {
+        didSet {
+            // Whenever it changes, store in UserDefaults
+            AppSettings.setDarkMode(isDarkMode)
+        }
+    }
+    
+    init() {
+        // Load initial value from UserDefaults
+        self.isDarkMode = AppSettings.isDarkMode()
     }
 }

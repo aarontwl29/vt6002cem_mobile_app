@@ -4,6 +4,7 @@ import CoreData
 struct ContentView: View {
     @State private var isLoggedIn = AppSettings.isLoggedIn()
     
+    
     var body: some View {
         
         Group {
@@ -17,8 +18,6 @@ struct ContentView: View {
             isLoggedIn = AppSettings.isLoggedIn()
         }
 
-
-        //        View_Login()
     }
 
 }
