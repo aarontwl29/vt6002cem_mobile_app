@@ -35,41 +35,41 @@ struct FindingLostView: View {
                         
                         // Testing
                         // Test AI Image Upload Button
-                        Button("Find Matching Cases") {
-                            if let image = capturedImage {
-                                findingLostViewModel.findMatchingImages(image: image, reportManager: reportManager) { success in
-                                    if success {
-                                        print("✅ AI Matching completed! Check console for URLs.")
-                                    } else {
-                                        print("❌ AI Matching failed!")
-                                    }
-                                }
-                            }
-                        }
-                        .disabled(capturedImage == nil)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        
-                        // 🔹 Display Matched Reports' Descriptions
-                        if !findingLostViewModel.matchedReports.isEmpty {
-                            Text("Matched Reports")
-                                .font(.headline)
-                                .padding(.top)
-                            
-                            ForEach(findingLostViewModel.matchedReports, id: \.id) { report in
-                                VStack(alignment: .leading) {
-                                    Text("📄 \(report.description)")
-                                        .font(.body)
-                                        .padding(5)
-                                        .background(Color.gray.opacity(0.2))
-                                        .cornerRadius(10)
-                                }
-                                .padding(.horizontal)
-                            }
-                        }
+//                        Button("Find Matching Cases") {
+//                            if let image = capturedImage {
+//                                findingLostViewModel.findMatchingImages(image: image, reportManager: reportManager) { success in
+//                                    if success {
+//                                        print("✅ AI Matching completed! Check console for URLs.")
+//                                    } else {
+//                                        print("❌ AI Matching failed!")
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        .disabled(capturedImage == nil)
+//                        .frame(maxWidth: .infinity)
+//                        .padding()
+//                        .background(Color.green)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(10)
+//                        
+//                        // 🔹 Display Matched Reports' Descriptions
+//                        if !findingLostViewModel.matchedReports.isEmpty {
+//                            Text("Matched Reports")
+//                                .font(.headline)
+//                                .padding(.top)
+//                            
+//                            ForEach(findingLostViewModel.matchedReports, id: \.id) { report in
+//                                VStack(alignment: .leading) {
+//                                    Text("📄 \(report.description)")
+//                                        .font(.body)
+//                                        .padding(5)
+//                                        .background(Color.gray.opacity(0.2))
+//                                        .cornerRadius(10)
+//                                }
+//                                .padding(.horizontal)
+//                            }
+//                        }
                         
                         // Testing
                         
@@ -282,29 +282,65 @@ struct FindingLostView: View {
                 resetForm()
                 showResult = false
             })
+            .environmentObject(findingLostViewModel)  // 🔹 Pass matched reports
             .presentationDetents([.large]) // or .fraction(0.9) or .height(500)
         }
     }
+    
+//    private func startSearch() {
+//        print("Search pressed with details:")
+//        print("Species: \(species), Area: \(selectedArea), District: \(selectedDistrict)")
+//        print("Date: \(selectedDate)")
+//        print("Time range: \(startTime) to \(endTime)")
+//        
+//        isLoading = true
+//        
+//        Task {
+//            try? await Task.sleep(nanoseconds: 1_000_000_000) 
+//            isLoading = false
+//            
+//            if capturedImage == nil {
+//                showNoResults = true
+//            } else {
+//                showResult = true
+//            }
+//        }
+//    }
+    
     
     private func startSearch() {
         print("Search pressed with details:")
         print("Species: \(species), Area: \(selectedArea), District: \(selectedDistrict)")
         print("Date: \(selectedDate)")
         print("Time range: \(startTime) to \(endTime)")
-        
+
         isLoading = true
-        
-        Task {
-            try? await Task.sleep(nanoseconds: 1_000_000_000) 
-            isLoading = false
-            
-            if capturedImage == nil {
-                showNoResults = true
-            } else {
-                showResult = true
+
+        // 🔹 Check if an image is selected for AI matching
+        if let image = capturedImage {
+            findingLostViewModel.findMatchingImages(image: image, reportManager: reportManager) { success in
+                DispatchQueue.main.async {
+                    isLoading = false
+                    showResult = success && !findingLostViewModel.matchedReports.isEmpty
+                    showNoResults = !success || findingLostViewModel.matchedReports.isEmpty
+                }
+            }
+        } else {
+            // 🔹 If no image, fallback to default search behavior
+            Task {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                isLoading = false
+                
+                if capturedImage == nil {
+                    showNoResults = true
+                } else {
+                    showResult = true
+                }
             }
         }
     }
+
+    
     
     private func resetForm() {
         capturedImage = nil

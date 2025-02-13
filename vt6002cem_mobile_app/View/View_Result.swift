@@ -2,6 +2,7 @@ import SwiftUI
 
 struct FindingLostResultView: View {
     @EnvironmentObject var reportManager: ReportManager
+    @EnvironmentObject var findingLostViewModel: FindingLostViewModel
     var onClose: () -> Void
     
     @State private var selectedReport: Report?
@@ -32,13 +33,29 @@ struct FindingLostResultView: View {
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                 
+//                ScrollView {
+//                    VStack(spacing: 16) {
+//                        ForEach(reportManager.reports.indices, id: \.self) { index in
+//                            ResultCard(
+//                                report: $reportManager.reports[index],
+//                                onTapDetails: {
+//                                    selectedReport = reportManager.reports[index]
+//                                    showDetailsSheet = true
+//                                }
+//                            )
+//                        }
+//                    }
+//                    .padding(.horizontal)
+//                }
+
+                
                 ScrollView {
                     VStack(spacing: 16) {
-                        ForEach(reportManager.reports.indices, id: \.self) { index in
+                        ForEach(findingLostViewModel.matchedReports.indices, id: \.self) { index in
                             ResultCard(
-                                report: $reportManager.reports[index],
+                                report: $findingLostViewModel.matchedReports[index],  // 🔹 Use matched reports
                                 onTapDetails: {
-                                    selectedReport = reportManager.reports[index]
+                                    selectedReport = findingLostViewModel.matchedReports[index]
                                     showDetailsSheet = true
                                 }
                             )
@@ -46,7 +63,8 @@ struct FindingLostResultView: View {
                     }
                     .padding(.horizontal)
                 }
-
+                
+                
                 Spacer()
 
                 // Save Button
@@ -87,11 +105,22 @@ struct FindingLostResultView: View {
 //            // For modification (Should be Deleted later on)
         }
     }
+//    private func saveFavourites() {
+//        for report in reportManager.reports {
+//            print("Report ID: \(report.id), isFavour: \(report.isFavour)")
+//        }
+//    }
+    
+    /// 🔹 Save AI-matched reports into `reportManager.reports`
     private func saveFavourites() {
-        for report in reportManager.reports {
-            print("Report ID: \(report.id), isFavour: \(report.isFavour)")
+        for matchedReport in findingLostViewModel.matchedReports {
+            if let index = reportManager.reports.firstIndex(where: { $0.id == matchedReport.id }) {
+                reportManager.reports[index] = matchedReport  // Update existing report
+            } else {
+                reportManager.reports.append(matchedReport)  // Add new report if missing
+            }
         }
-    } 
+    }
 }
 
 
@@ -101,6 +130,7 @@ struct FindingLostResultView_Previews: PreviewProvider {
     static var previews: some View {
         FindingLostResultView(onClose: {})
             .environmentObject(ReportManager())
+            .environmentObject(FindingLostViewModel())
     }
 }
 

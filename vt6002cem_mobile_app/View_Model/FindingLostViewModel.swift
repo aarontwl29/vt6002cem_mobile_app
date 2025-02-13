@@ -59,56 +59,35 @@ class FindingLostViewModel: ObservableObject {
                         return (url, similarity)
                     }
                     
-                    // Print URLs to console for debugging
-                    print("\n🔍 AI Model Suggested Images:\n")
-                    for (url, similarity) in self.topMatches {
-                        print("📸 \(url) - \(similarity)% Similar")
-                    }
-                    print("\n")
-                    
                     // 🔹 Find matching reports based on image URLs
-                    self.findMatchingReports(reportManager: reportManager)
+                    self.findMatchingReports(reportManager: reportManager) {
+                        completion(true)  // 🔹 Ensure UI updates after matches are found
+                    }
                 }
-                completion(true)
             } else {
                 DispatchQueue.main.async {
                     self.errorMessage = "Failed to get matches"
+                    completion(false)
                 }
-                completion(false)
             }
         }.resume()
     }
     
     // 🔹 Function to find matching reports from local storage
-    
-    private func findMatchingReports(reportManager: ReportManager) {
+    private func findMatchingReports(reportManager: ReportManager, completion: @escaping () -> Void) {
         matchedReports = [] // Clear previous results
-        
-        print("\n🔍 Checking Reports for Matching URLs...")
-        print("📂 Total Reports Stored: \(reportManager.reports.count)")
         
         let baseURL = "http://127.0.0.1:5000/"  // Base URL for stored images
 
-        for report in reportManager.reports {
-            print("📝 Checking Report: \(report.description)")
-            print("🔗 Report Image URLs: \(report.imageUrls)")
-        }
-        
         for match in topMatches {
             let matchedUrl = match.0  // AI returned "uploads/..."
             let fullMatchedUrl = baseURL + matchedUrl  // Convert it to "http://127.0.0.1:5000/uploads/..."
 
-            print("\n🔎 Searching for: \(fullMatchedUrl)")
-            
             if let report = reportManager.reports.first(where: { $0.imageUrls.contains(fullMatchedUrl) }) {
                 matchedReports.append(report)
-                print("✅ Matched Report: \(report.description)")
             }
         }
-        
-        print("\n🔍 Matching Process Completed")
-        print("✅ Matched Report Count: \(matchedReports.count)")
+
+        completion()  // 🔹 Ensure UI updates after matches are found
     }
-
-
 }
