@@ -21,11 +21,40 @@ struct FindingLostView: View {
     @State private var showResult: Bool = false
     @State private var showNoResults: Bool = false
     
+    // Testing
+    @StateObject private var findingLostViewModel = FindingLostViewModel()
+    // Testing
+    
     var body: some View {
         ZStack {
             NavigationView {
                 ScrollView {
                     VStack(spacing: 20) {
+                        
+                        
+                        // Test AI Image Upload Button
+                        Button("Find Matching Cases") {
+                            if let image = capturedImage {
+                                findingLostViewModel.findMatchingImages(image: image) { success in
+                                    if success {
+                                        print("✅ AI Matching completed! Check console for URLs.")
+                                    } else {
+                                        print("❌ AI Matching failed!")
+                                    }
+                                }
+                            }
+                        }
+                        .disabled(capturedImage == nil)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                        
+                        // Test AI Image Upload Button
+                        
+                        
+                        
                         
                         // Title
                         Text("Finding Lost")
