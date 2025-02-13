@@ -23,6 +23,7 @@ struct FindingLostView: View {
     
     // Testing
     @StateObject private var findingLostViewModel = FindingLostViewModel()
+    @EnvironmentObject var reportManager: ReportManager
     // Testing
     
     var body: some View {
@@ -32,10 +33,11 @@ struct FindingLostView: View {
                     VStack(spacing: 20) {
                         
                         
+                        // Testing
                         // Test AI Image Upload Button
                         Button("Find Matching Cases") {
                             if let image = capturedImage {
-                                findingLostViewModel.findMatchingImages(image: image) { success in
+                                findingLostViewModel.findMatchingImages(image: image, reportManager: reportManager) { success in
                                     if success {
                                         print("✅ AI Matching completed! Check console for URLs.")
                                     } else {
@@ -51,7 +53,26 @@ struct FindingLostView: View {
                         .foregroundColor(.white)
                         .cornerRadius(10)
                         
-                        // Test AI Image Upload Button
+                        // 🔹 Display Matched Reports' Descriptions
+                        if !findingLostViewModel.matchedReports.isEmpty {
+                            Text("Matched Reports")
+                                .font(.headline)
+                                .padding(.top)
+                            
+                            ForEach(findingLostViewModel.matchedReports, id: \.id) { report in
+                                VStack(alignment: .leading) {
+                                    Text("📄 \(report.description)")
+                                        .font(.body)
+                                        .padding(5)
+                                        .background(Color.gray.opacity(0.2))
+                                        .cornerRadius(10)
+                                }
+                                .padding(.horizontal)
+                            }
+                        }
+                        
+                        // Testing
+                        
                         
                         
                         
