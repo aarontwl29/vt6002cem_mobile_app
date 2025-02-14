@@ -18,17 +18,20 @@ UPLOAD_FOLDER = "uploads"  # 🔹 Existing reported images are stored here
 # Dictionary to store precomputed image feature vectors
 image_database = {}  # Format: { "image_path": feature_vector }
 
-# Function to extract features from an image
-def extract_features(img_path):
-    img = image.load_img(img_path, target_size=(224, 224))
-    img_array = image.img_to_array(img)
+# 🔹 Unified function for consistent feature extraction
+def extract_features_from_array(img_array):
     img_array = np.expand_dims(img_array, axis=0)
     img_array = preprocess_input(img_array)
-    
     features = model.predict(img_array)
     return features.flatten()
 
-# Precompute features for all stored images
+# 🔹 Function to preprocess and extract features from stored images
+def extract_features(img_path):
+    img = image.load_img(img_path, target_size=(224, 224))  # ✅ Load in RGB mode
+    img_array = image.img_to_array(img)  # Convert to NumPy array
+    return extract_features_from_array(img_array)  # Extract features
+
+# 🔹 Precompute features for stored images
 def load_image_database():
     global image_database
     image_database = {}
@@ -40,7 +43,7 @@ def load_image_database():
             print(f"✅ Stored Features for: {filename}")  # Debugging line
         except Exception as e:
             print(f"❌ Skipping invalid image: {filename} - {e}")
-            
+
 load_image_database()  # Run once at startup
 
 # Route to match images
@@ -53,20 +56,22 @@ def match_image():
     if file.filename == "":
         return jsonify({"error": "No file selected"}), 400
 
-    # 🔹 Read image data from memory (RAM) instead of saving to a file
+    # 🔹 Read image directly into memory (RAM)
     img_array = np.frombuffer(file.read(), np.uint8)
     img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
     if img is None:
         return jsonify({"error": "Invalid image file"}), 400
 
-    # 🔹 Convert image to format required by the AI model
-    img = cv2.resize(img, (224, 224))
-    img = np.expand_dims(img, axis=0).astype(np.float32)
-    img = preprocess_input(img)
+    # 🔹 Convert BGR (cv2 default) to RGB for consistency
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-    # Extract features of uploaded image
-    uploaded_features = model.predict(img).flatten()
+    # 🔹 Resize and normalize like stored images
+    img = cv2.resize(img, (224, 224))
+    img = img.astype(np.float32)  # Ensure correct type
+
+    # 🔹 Extract features using the same preprocessing method
+    uploaded_features = extract_features_from_array(img)
 
     # Compute similarity with all stored images
     similarities = []
@@ -94,7 +99,6 @@ def match_image():
     for match in top_matches:
         print(match)
 
-    # 🔹 No need to delete anything manually (image never stored)
     return jsonify({"matches": top_matches}), 200
 
 
