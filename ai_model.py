@@ -13,11 +13,7 @@ app = Flask(__name__)
 model = ResNet50(weights="imagenet", include_top=False, pooling="avg")
 
 # Directory storing reported case images
-UPLOAD_FOLDER = "uploads"
-AI_UPLOAD_FOLDER = "ai_uploads"
-
-if not os.path.exists(AI_UPLOAD_FOLDER):
-    os.makedirs(AI_UPLOAD_FOLDER)
+UPLOAD_FOLDER = "uploads"  # 🔹 Existing reported images are stored here
 
 # Dictionary to store precomputed image feature vectors
 image_database = {}  # Format: { "image_path": feature_vector }
@@ -33,7 +29,6 @@ def extract_features(img_path):
     return features.flatten()
 
 # Precompute features for all stored images
-
 def load_image_database():
     global image_database
     image_database = {}
@@ -48,9 +43,6 @@ def load_image_database():
             
 load_image_database()  # Run once at startup
 
-
-
-
 # Route to match images
 @app.route("/match_image", methods=["POST"])
 def match_image():
@@ -61,12 +53,20 @@ def match_image():
     if file.filename == "":
         return jsonify({"error": "No file selected"}), 400
 
-    # Save uploaded file temporarily
-    temp_path = os.path.join(AI_UPLOAD_FOLDER, file.filename)
-    file.save(temp_path)
+    # 🔹 Read image data from memory (RAM) instead of saving to a file
+    img_array = np.frombuffer(file.read(), np.uint8)
+    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+
+    if img is None:
+        return jsonify({"error": "Invalid image file"}), 400
+
+    # 🔹 Convert image to format required by the AI model
+    img = cv2.resize(img, (224, 224))
+    img = np.expand_dims(img, axis=0).astype(np.float32)
+    img = preprocess_input(img)
 
     # Extract features of uploaded image
-    uploaded_features = extract_features(temp_path)
+    uploaded_features = model.predict(img).flatten()
 
     # Compute similarity with all stored images
     similarities = []
@@ -94,6 +94,7 @@ def match_image():
     for match in top_matches:
         print(match)
 
+    # 🔹 No need to delete anything manually (image never stored)
     return jsonify({"matches": top_matches}), 200
 
 

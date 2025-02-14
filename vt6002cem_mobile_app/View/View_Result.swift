@@ -8,19 +8,7 @@ struct FindingLostResultView: View {
     @State private var selectedReport: Report?
     @State private var showDetailsSheet: Bool = false
     
-//    // For modification (Should be Deleted later on)
-//
-//    @StateObject private var reportManager = ReportManager()
-//    @StateObject private var reportViewModel: ReportViewModel
-//    
-//    init(onClose: @escaping () -> Void) {
-//        let manager = ReportManager()
-//        _reportManager = StateObject(wrappedValue: manager)
-//        _reportViewModel = StateObject(wrappedValue: ReportViewModel(reportManager: manager))
-//        self.onClose = onClose
-//    }
-//    
-//    // For modification (Should be Deleted later on)
+
 
     var body: some View {
         NavigationView {
@@ -33,27 +21,14 @@ struct FindingLostResultView: View {
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                 
-//                ScrollView {
-//                    VStack(spacing: 16) {
-//                        ForEach(reportManager.reports.indices, id: \.self) { index in
-//                            ResultCard(
-//                                report: $reportManager.reports[index],
-//                                onTapDetails: {
-//                                    selectedReport = reportManager.reports[index]
-//                                    showDetailsSheet = true
-//                                }
-//                            )
-//                        }
-//                    }
-//                    .padding(.horizontal)
-//                }
+
 
                 
                 ScrollView {
                     VStack(spacing: 16) {
                         ForEach(findingLostViewModel.matchedReports.indices, id: \.self) { index in
                             ResultCard(
-                                report: $findingLostViewModel.matchedReports[index],  // 🔹 Use matched reports
+                                report: $findingLostViewModel.matchedReports[index],
                                 onTapDetails: {
                                     selectedReport = findingLostViewModel.matchedReports[index]
                                     showDetailsSheet = true
@@ -96,31 +71,22 @@ struct FindingLostResultView: View {
                 }
             }
             
-//            // For modification (Should be Deleted later on)
-//            
-//            .onAppear {
-//                reportViewModel.loadReports()
-//            }
-//            
-//            // For modification (Should be Deleted later on)
+
         }
     }
-//    private func saveFavourites() {
-//        for report in reportManager.reports {
-//            print("Report ID: \(report.id), isFavour: \(report.isFavour)")
-//        }
-//    }
+
     
-    /// 🔹 Save AI-matched reports into `reportManager.reports`
+    // Save AI-matched reports into `reportManager.reports`
     private func saveFavourites() {
         for matchedReport in findingLostViewModel.matchedReports {
             if let index = reportManager.reports.firstIndex(where: { $0.id == matchedReport.id }) {
-                reportManager.reports[index] = matchedReport  // Update existing report
+                reportManager.reports[index] = matchedReport  // Update correctly
             } else {
-                reportManager.reports.append(matchedReport)  // Add new report if missing
+                reportManager.reports.append(matchedReport)  // Append new if missing
             }
         }
     }
+
 }
 
 
