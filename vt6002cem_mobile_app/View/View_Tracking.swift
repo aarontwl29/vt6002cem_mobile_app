@@ -236,20 +236,25 @@ struct TrackingReportView: View {
     }
     
     
-    // Toggle audio playback
+    
+    @StateObject private var viewModel = MP3PlayerViewModel()
+    
     private func toggleAudioPlayback() {
-        guard let url = report?.audioFileURL else { return }
+        guard let _ = report?.audioFileURL else { return }
+        
+        let localURLString = "http://127.0.0.1:5000/uploads/audio/sample_announcement.mp3"
         
         if isPlayingAudio {
             stopAudioPlayback()
         } else {
+            guard let url = URL(string: localURLString) else { return }
+            
             audioPlayer = AVPlayer(url: url)
             audioPlayer?.play()
             isPlayingAudio = true
         }
     }
-    
-    // Stop audio playback
+
     private func stopAudioPlayback() {
         audioPlayer?.pause()
         isPlayingAudio = false

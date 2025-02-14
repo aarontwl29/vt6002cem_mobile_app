@@ -37,5 +37,22 @@ def upload_image():
 def get_uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+
+
+
+# Route for audio (or subfolder)
+@app.route('/uploads/audio/<filename>', methods=['GET'])
+def get_uploaded_audio(filename):
+    audio_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'audio')
+    file_path = os.path.join(audio_folder, filename)
+
+    if not os.path.exists(file_path):
+        return jsonify({"error": "File not found"}), 404
+
+    # No manual open -> just send_from_directory
+    return send_from_directory(audio_folder, filename, mimetype="audio/mpeg")
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,5 +1,7 @@
 import AVFoundation
 import Foundation
+import SwiftUI
+import AVKit
 
 class AudioControl: NSObject, ObservableObject, AVAudioPlayerDelegate {
     private var audioRecorder: AVAudioRecorder?
@@ -165,5 +167,61 @@ class AudioControl: NSObject, ObservableObject, AVAudioPlayerDelegate {
     // MARK: - Get the file URL
     func getRecordingURL() -> URL? {
         return recordingURL
+    }
+}
+
+
+
+
+
+
+
+class MP3PlayerViewModel: ObservableObject {
+    // 🔹 Tracks whether we're currently playing
+    @Published var isPlaying: Bool = false
+    
+    private var audioPlayer: AVPlayer?
+    
+    // 🔸 Called when user taps "Play" or "Stop"
+    func togglePlayback(urlString: String) {
+        if isPlaying {
+            stop()
+        } else {
+            play(from: urlString)
+        }
+    }
+    
+    // 🔹 Start playing an MP3 from your local server
+    private func play(from urlString: String) {
+        guard let url = URL(string: urlString) else {
+            print("❌ Invalid MP3 URL: \(urlString)")
+            return
+        }
+        
+        // 1) Create the AVPlayer
+        audioPlayer = AVPlayer(url: url)
+        
+        // 2) Start playback
+        audioPlayer?.play()
+        isPlaying = true
+        
+        // 3) Observe finishing
+        NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: audioPlayer?.currentItem,
+            queue: .main
+        ) { [weak self] _ in
+            // When playback ends, reset
+            self?.isPlaying = false
+        }
+        
+        print("🎵 Playing MP3 from: \(urlString)")
+    }
+    
+    // 🔹 Stop playback if currently playing
+    private func stop() {
+        audioPlayer?.pause()
+        isPlaying = false
+        print("🛑 Stopped playback")
     }
 }
