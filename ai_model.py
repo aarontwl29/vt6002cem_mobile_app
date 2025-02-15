@@ -92,7 +92,7 @@ def match_image():
     # Filter top 5 matches with similarity above 50%
     top_matches = [
         {"image": img_path, "similarity": float(round(sim * 100, 2))}
-        for img_path, sim in similarities if sim > 0.50
+        for img_path, sim in similarities if sim > 0.70
     ][:5]
 
     print("\n✅ Top Matches Found:")
