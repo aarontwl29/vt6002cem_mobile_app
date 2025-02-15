@@ -6,11 +6,27 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		934113F02D61439500BBCCD6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9355BA812D41E422008289CD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9355BA882D41E422008289CD;
+			remoteInfo = vt6002cem_mobile_app;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		934113EC2D61439500BBCCD6 /* Unit_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Unit_Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9355BA892D41E422008289CD /* vt6002cem_mobile_app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = vt6002cem_mobile_app.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		934113ED2D61439500BBCCD6 /* Unit_Tests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Unit_Tests;
+			sourceTree = "<group>";
+		};
 		9355BA8B2D41E422008289CD /* vt6002cem_mobile_app */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = vt6002cem_mobile_app;
@@ -19,6 +35,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		934113E92D61439500BBCCD6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9355BA862D41E422008289CD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				9355BA8B2D41E422008289CD /* vt6002cem_mobile_app */,
+				934113ED2D61439500BBCCD6 /* Unit_Tests */,
 				9355BA8A2D41E422008289CD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				9355BA892D41E422008289CD /* vt6002cem_mobile_app.app */,
+				934113EC2D61439500BBCCD6 /* Unit_Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,6 +73,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		934113EB2D61439500BBCCD6 /* Unit_Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 934113F42D61439500BBCCD6 /* Build configuration list for PBXNativeTarget "Unit_Tests" */;
+			buildPhases = (
+				934113E82D61439500BBCCD6 /* Sources */,
+				934113E92D61439500BBCCD6 /* Frameworks */,
+				934113EA2D61439500BBCCD6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				934113F12D61439500BBCCD6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				934113ED2D61439500BBCCD6 /* Unit_Tests */,
+			);
+			name = Unit_Tests;
+			packageProductDependencies = (
+			);
+			productName = Unit_Tests;
+			productReference = 934113EC2D61439500BBCCD6 /* Unit_Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		9355BA882D41E422008289CD /* vt6002cem_mobile_app */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9355BA9C2D41E423008289CD /* Build configuration list for PBXNativeTarget "vt6002cem_mobile_app" */;
@@ -80,6 +128,10 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					934113EB2D61439500BBCCD6 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 9355BA882D41E422008289CD;
+					};
 					9355BA882D41E422008289CD = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -100,11 +152,19 @@
 			projectRoot = "";
 			targets = (
 				9355BA882D41E422008289CD /* vt6002cem_mobile_app */,
+				934113EB2D61439500BBCCD6 /* Unit_Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		934113EA2D61439500BBCCD6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9355BA872D41E422008289CD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +175,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		934113E82D61439500BBCCD6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9355BA852D41E422008289CD /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -124,7 +191,49 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		934113F12D61439500BBCCD6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9355BA882D41E422008289CD /* vt6002cem_mobile_app */;
+			targetProxy = 934113F02D61439500BBCCD6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		934113F22D61439500BBCCD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "edu.ive.Unit-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/vt6002cem_mobile_app.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/vt6002cem_mobile_app";
+			};
+			name = Debug;
+		};
+		934113F32D61439500BBCCD6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "edu.ive.Unit-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/vt6002cem_mobile_app.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/vt6002cem_mobile_app";
+			};
+			name = Release;
+		};
 		9355BA9A2D41E423008289CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -325,6 +434,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		934113F42D61439500BBCCD6 /* Build configuration list for PBXNativeTarget "Unit_Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				934113F22D61439500BBCCD6 /* Debug */,
+				934113F32D61439500BBCCD6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9355BA842D41E422008289CD /* Build configuration list for PBXProject "vt6002cem_mobile_app" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
