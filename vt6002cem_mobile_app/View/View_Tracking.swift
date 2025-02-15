@@ -86,7 +86,7 @@ struct TrackingReportView: View {
                             InfoSection(title: "Description", content: report.description.isEmpty ? "No description provided." : report.description)
                             
                             // 5. Voice Comment
-                            if let audioURL = report.audioFileURL {
+//                            if let audioURL = report.audioFileURL {
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text("Voice Comment")
                                         .font(.headline)
@@ -104,11 +104,11 @@ struct TrackingReportView: View {
                                         .cornerRadius(8)
                                     }
                                 }
-                            } else {
-                                Text("No voice comment available")
-                                    .foregroundColor(.gray)
-                                    .italic()
-                            }
+//                            } else {
+//                                Text("No voice comment available")
+//                                    .foregroundColor(.gray)
+//                                    .italic()
+//                            }
                             
                             // 6. Contact Information with Expand/Collapse
                             VStack(alignment: .leading, spacing: 5) {
@@ -240,7 +240,7 @@ struct TrackingReportView: View {
     @StateObject private var viewModel = MP3PlayerViewModel()
     
     private func toggleAudioPlayback() {
-        guard let _ = report?.audioFileURL else { return }
+//        guard let _ = report?.audioFileURL else { return }
         
         let localURLString = "http://127.0.0.1:5000/uploads/audio/sample_announcement.mp3"
         
