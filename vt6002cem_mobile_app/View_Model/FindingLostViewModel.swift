@@ -59,7 +59,7 @@ class FindingLostViewModel: ObservableObject {
                         return (url, similarity)
                     }
                     
-                    // 🔹 Find matching reports based on image URLs
+                    // 🔹 Find matching reports based on image URLs and filter out finished ones
                     self.findMatchingReports(reportManager: reportManager) {
                         completion(true)  // 🔹 Ensure UI updates after matches are found
                     }
@@ -83,7 +83,7 @@ class FindingLostViewModel: ObservableObject {
             let matchedUrl = match.0  // AI returned "uploads/..."
             let fullMatchedUrl = baseURL + matchedUrl  // Convert it to "http://127.0.0.1:5000/uploads/..."
 
-            if let report = reportManager.reports.first(where: { $0.imageUrls.contains(fullMatchedUrl) }) {
+            if let report = reportManager.reports.first(where: { $0.imageUrls.contains(fullMatchedUrl) && !$0.isFinished }) {
                 matchedReports.append(report)
             }
         }
